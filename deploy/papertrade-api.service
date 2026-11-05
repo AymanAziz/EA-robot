@@ -1,0 +1,29 @@
+[Unit]
+Description=Papertrade authenticated local backend
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=papertrade
+Group=papertrade
+WorkingDirectory=/opt/papertrade
+EnvironmentFile=/opt/papertrade/.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=OMP_NUM_THREADS=1
+ExecStart=/opt/papertrade/.venv/bin/papertrade serve
+Restart=on-failure
+RestartSec=10
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/papertrade/var
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=768M
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

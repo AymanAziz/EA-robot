@@ -1,0 +1,26 @@
+[Unit]
+Description=Papertrade completed-candle paper analysis and reconciliation
+After=network-online.target time-sync.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=papertrade
+Group=papertrade
+WorkingDirectory=/opt/papertrade
+EnvironmentFile=/opt/papertrade/.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=OMP_NUM_THREADS=1
+ExecStart=/opt/papertrade/.venv/bin/papertrade run-once
+TimeoutStartSec=12min
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/papertrade/var
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=1536M
+CPUQuota=100%
+StandardOutput=journal
+StandardError=journal

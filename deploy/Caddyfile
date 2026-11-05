@@ -1,0 +1,11 @@
+# Replace dashboard.example.com with your DNS name before installation.
+dashboard.example.com {
+    encode zstd gzip
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "same-origin"
+        X-Frame-Options "DENY"
+    }
+    reverse_proxy 127.0.0.1:8501
+}

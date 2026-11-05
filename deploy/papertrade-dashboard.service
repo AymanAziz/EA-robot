@@ -1,0 +1,26 @@
+[Unit]
+Description=Papertrade authenticated Streamlit dashboard
+After=network-online.target papertrade-api.service
+Requires=papertrade-api.service
+
+[Service]
+Type=simple
+User=papertrade
+Group=papertrade
+WorkingDirectory=/opt/papertrade
+EnvironmentFile=/opt/papertrade/.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/papertrade/.venv/bin/papertrade dashboard
+Restart=on-failure
+RestartSec=10
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/papertrade/var
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=768M
+
+[Install]
+WantedBy=multi-user.target

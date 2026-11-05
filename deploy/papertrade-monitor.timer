@@ -1,0 +1,11 @@
+[Unit]
+Description=Reconcile protection every minute
+
+[Timer]
+OnCalendar=*-*-* *:*:10 UTC
+Persistent=true
+AccuracySec=1s
+Unit=papertrade-monitor.service
+
+[Install]
+WantedBy=timers.target

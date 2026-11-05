@@ -1,0 +1,12 @@
+[Unit]
+Description=Check cloud AI frequency/event gates after quant cycles
+
+[Timer]
+OnCalendar=*-*-* *:00,15,30,45:40 UTC
+Persistent=true
+AccuracySec=1s
+RandomizedDelaySec=0
+Unit=papertrade-ai.service
+
+[Install]
+WantedBy=timers.target

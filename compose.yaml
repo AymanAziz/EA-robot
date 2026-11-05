@@ -1,0 +1,38 @@
+name: papertrade
+x-common: &common
+  build: .
+  env_file: .env
+  volumes:
+    - state:/app/var
+  restart: unless-stopped
+  security_opt:
+    - no-new-privileges:true
+  cap_drop:
+    - ALL
+  logging:
+    driver: json-file
+    options:
+      max-size: 10m
+      max-file: "3"
+services:
+  api:
+    <<: *common
+    command: ["papertrade", "serve", "--host", "0.0.0.0"]
+    # API has no host port; Streamlit alone calls it over the private network.
+  dashboard:
+    <<: *common
+    command: ["streamlit", "run", "/app/src/papertrade/dashboard.py", "--server.address", "0.0.0.0"]
+    environment:
+      PT_API_URL: http://api:8000
+    ports:
+      - "127.0.0.1:8501:8501"
+    depends_on:
+      - api
+  engine:
+    <<: *common
+    command: ["papertrade", "scheduler"]
+    # APScheduler drives both analysis and independent protective monitoring.
+    depends_on:
+      - api
+volumes:
+  state:

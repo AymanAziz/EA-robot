@@ -1,0 +1,7 @@
+# Frontend dependencies only. The entrypoint directory takes precedence on Community Cloud.
+streamlit==1.66.1
+pandas==2.3.3
+numpy==2.5.4
+httpx==0.28.1
+pydantic-settings==2.16.2
+python-dotenv==1.2.4

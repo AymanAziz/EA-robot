@@ -1,0 +1,22 @@
+[Unit]
+Description=Papertrade independent protection and connectivity monitor
+After=network-online.target time-sync.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=papertrade
+Group=papertrade
+WorkingDirectory=/opt/papertrade
+EnvironmentFile=/opt/papertrade/.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/papertrade/.venv/bin/papertrade monitor-once
+TimeoutStartSec=50
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/papertrade/var
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=512M

@@ -1,0 +1,11 @@
+# Application JSON is emitted to journald; this only rotates an optional file sink.
+/opt/papertrade/var/*.log {
+    daily
+    rotate 7
+    size 10M
+    compress
+    missingok
+    notifempty
+    copytruncate
+    su papertrade papertrade
+}

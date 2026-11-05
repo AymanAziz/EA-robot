@@ -1,0 +1,26 @@
+[Unit]
+Description=Papertrade bounded cloud AI reasoning worker
+After=network-online.target time-sync.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=papertrade
+Group=papertrade
+WorkingDirectory=/opt/papertrade
+EnvironmentFile=/opt/papertrade/.env
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=OMP_NUM_THREADS=1
+ExecStart=/opt/papertrade/.venv/bin/papertrade analyze-ai
+TimeoutStartSec=180
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/papertrade/var
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+MemoryMax=768M
+CPUQuota=50%
+StandardOutput=journal
+StandardError=journal

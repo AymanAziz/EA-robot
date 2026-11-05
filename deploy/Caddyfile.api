@@ -1,0 +1,32 @@
+# Replace api.example.com with a real DNS hostname and verify TLS before Cloud use.
+# Keep FastAPI loopback-only. This is the API proxy for Streamlit Community Cloud.
+api.example.com {
+    encode zstd gzip
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options "nosniff"
+        Referrer-Policy "no-referrer"
+        X-Frame-Options "DENY"
+        Cache-Control "no-store"
+    }
+    request_body {
+        max_size 16KB
+    }
+    @reads {
+        method GET
+        path /healthz /readyz /status /tables/*
+    }
+    handle @reads {
+        reverse_proxy 127.0.0.1:8000
+    }
+    @writes {
+        method POST
+        path /auth/login /controls
+    }
+    handle @writes {
+        reverse_proxy 127.0.0.1:8000
+    }
+    handle {
+        respond "Not found" 404
+    }
+}
