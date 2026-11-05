@@ -24,7 +24,11 @@ sudo -u papertrade "$PT_INSTALL_DIR/.venv/bin/python" -m pip install --upgrade p
 sudo -u papertrade "$PT_INSTALL_DIR/.venv/bin/python" -m pip install -r "$PT_INSTALL_DIR/requirements.lock.txt"
 sudo -u papertrade "$PT_INSTALL_DIR/.venv/bin/python" -m pip install --no-deps -e "$PT_INSTALL_DIR"
 cd "$PT_INSTALL_DIR"
-sudo -u papertrade "$PT_INSTALL_DIR/.venv/bin/python" scripts/configure_env.py
+if [[ "${PT_BOOTSTRAP_GENERATE:-0}" == 1 ]]; then
+  sudo -u papertrade "$PT_INSTALL_DIR/.venv/bin/python" scripts/configure_env.py --generate
+else
+  sudo -u papertrade "$PT_INSTALL_DIR/.venv/bin/python" scripts/configure_env.py
+fi
 sudo -u papertrade "$PT_INSTALL_DIR/.venv/bin/papertrade" init-db
 sudo install -m 0644 deploy/papertrade-*.service deploy/papertrade-*.timer /etc/systemd/system/
 sudo install -m 0644 deploy/papertrade-logrotate /etc/logrotate.d/papertrade
