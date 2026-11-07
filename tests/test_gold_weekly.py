@@ -14,10 +14,42 @@ from papertrade.gold_weekly import (
     AlgoSpecialGoldDailyHistory,
     DailyGoldHistory,
     GoldWeeklyStrategySpec,
+    classify_weekly_target_evidence,
+    classify_weekly_target_pair,
     prepare_daily_gold_history,
     run_gold_weekly_target_test,
     run_gold_weekly_target_command,
 )
+
+
+def test_public_weekly_evidence_classifier_distinguishes_fail_inconclusive_and_pass():
+    common = {
+        "maximum_drawdown": -0.05,
+        "buy_hold_net_pl_usd": 0.0,
+        "notional_cap_breached": False,
+    }
+
+    failed = classify_weekly_target_evidence([10.0, 12.0] * 26, **common)
+    uncertain = classify_weekly_target_evidence([100.0] * 26 + [-50.0] * 26, **common)
+    passed = classify_weekly_target_evidence([29.0, 31.0] * 26, **common)
+
+    assert failed["mean_weekly_net_pl_usd"] == pytest.approx(11.0)
+    assert failed["status"] == "fail"
+    assert uncertain["mean_weekly_net_pl_usd"] == pytest.approx(25.0)
+    assert uncertain["bootstrap_95_lower_mean_weekly_pl_usd"] <= 20.0
+    assert uncertain["status"] == "inconclusive"
+    assert passed["bootstrap_95_lower_mean_weekly_pl_usd"] > 20.0
+    assert passed["status"] == "pass"
+
+
+def test_public_weekly_pair_classifier_uses_fail_then_inconclusive_precedence():
+    assert classify_weekly_target_pair({"status": "pass"}, {"status": "pass"}) == "pass"
+    assert classify_weekly_target_pair(
+        {"status": "pass"}, {"status": "inconclusive"}
+    ) == "inconclusive"
+    assert classify_weekly_target_pair(
+        {"status": "inconclusive"}, {"status": "fail"}
+    ) == "fail"
 
 
 def test_weekly_strategy_spec_is_immutable_and_locks_the_usd_target_contract():
@@ -34,6 +66,9 @@ def test_weekly_strategy_spec_is_immutable_and_locks_the_usd_target_contract():
     assert spec.primary_financing_rate == 0.10
     assert spec.strategy_version == "gold_weekly_tsm_v1"
     assert spec.execution_timing == "completed month signal; first next-month D1 open"
+    assert spec.account_margin_rule == (
+        "broker account margin unavailable; research-only; not evaluated as a pass gate"
+    )
     assert spec.bootstrap_quantile == 0.05
     assert len(spec.sha256) == 64
     assert spec.sha256 == GoldWeeklyStrategySpec().sha256
@@ -174,9 +209,35 @@ def test_weekly_target_runs_two_locked_calendar_year_holdouts_with_equity_reset(
                for transaction in report["test_a"]["transactions"])
     assert all(transaction["provider_time"].startswith("2023-")
                for transaction in report["test_b"]["transactions"])
-    assert report["test_a"]["maximum_absolute_notional_usd"] <= 10_000.01
-    assert report["test_b"]["maximum_absolute_notional_usd"] <= 10_000.01
+    assert report["test_a"]["maximum_absolute_notional_usd"] > 10_000.01
+    assert report["test_a"]["notional_cap_breached"] is True
+    assert report["test_a"]["gates"]["no notional cap breach"] is False
     assert "total net P/L above USD 20 per complete week" in report["test_a"]["gates"]
+    assert report["account_margin_evidence"] == {
+        "status": "unavailable",
+        "classification": "research-only; not evaluated as a pass gate",
+    }
+    assert all("margin" not in gate.lower() for gate in report["test_a"]["gates"])
+    assert report["test_a"]["excluded_incomplete_final_block"] == {
+        "days": 1,
+        "start_provider_date": "2022-12-31",
+        "end_provider_date": "2022-12-31",
+    }
+    assert report["test_b"]["excluded_incomplete_final_block"]["days"] == 1
+    assert report["test_a"]["weeks_above_usd_20_percentage"] == pytest.approx(
+        100 * report["test_a"]["weeks_above_usd_20"] / 52
+    )
+    assert report["test_a"]["profitable_weeks_percentage"] == pytest.approx(
+        100 * report["test_a"]["profitable_weeks"] / 52
+    )
+    assert report["test_a"]["final_exit_provider_time"] == "2022-12-30T00:00:00"
+    assert report["test_b"]["final_exit_provider_time"] == "2023-12-30T00:00:00"
+    assert report["test_a"]["financing_stopped_at_provider_time"] == (
+        report["test_a"]["final_exit_provider_time"]
+    )
+    assert report["test_a"]["buy_hold_final_exit_provider_time"] == (
+        report["test_a"]["final_exit_provider_time"]
+    )
     assert report["overall_status"] in {"pass", "fail", "inconclusive"}
     assert report["warning"].endswith("not evidence of future weekly profit.")
 
@@ -241,9 +302,6 @@ def test_buy_hold_benchmark_debits_financing_from_each_completed_daily_price():
         days = (provider_time - prior_time).total_seconds() / 86_400
         cash -= quantity * prior_close * 0.10 * days / 365
         prior_time, prior_close = provider_time, row["close"]
-    cash -= quantity * prior_close * 0.10 * (
-        pd.Timestamp("2022-12-31") - prior_time
-    ).total_seconds() / 86_400 / 365
     exit_fill = last["close"] - 0.2 - last["close"] * 0.0002
     cash += quantity * exit_fill * 0.9999
 
@@ -348,4 +406,22 @@ def test_weekly_target_flags_post_cost_leverage_instead_of_hiding_it_by_resizing
 
     assert report["test_a"]["notional_cap_breached"] is True
     assert report["test_b"]["notional_cap_breached"] is True
+    assert report["test_a"]["gates"]["no notional cap breach"] is False
+
+
+def test_weekly_target_detects_fixed_notional_cap_breach_on_every_provider_close():
+    rows = [dict(row) for row in _synthetic_daily_history().rows]
+    for row in rows:
+        if row["Timestamp"] == "2022.06.15 00:00:00":
+            for field in ("Open", "High", "Low", "Close"):
+                row[field] *= 10
+            break
+    prepared = prepare_daily_gold_history(DailyGoldHistory(
+        rows=tuple(rows), manifest=({"fixture": "intramonth-notional-spike"},)
+    ))
+
+    report = run_gold_weekly_target_test(prepared)
+
+    assert report["test_a"]["notional_cap_breached"] is True
+    assert report["test_a"]["maximum_absolute_notional_usd"] > 10_000
     assert report["test_a"]["gates"]["no notional cap breach"] is False

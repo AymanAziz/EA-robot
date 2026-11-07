@@ -13,8 +13,9 @@ there is no classifier, probability threshold, intraday session feature, or
 parameter search.
 
 The candidate can honestly test whether a USD 10,000 paper account produced
-more than USD 20 **on average per seven-day block** in two untouched historical
-periods. It cannot promise USD 20 in every future week. USD 20 on USD 10,000 is
+more than USD 20 **on average per seven-day block** in two locked historical
+periods whose strategy results had not been inspected. It cannot promise USD 20
+in every future week. USD 20 on USD 10,000 is
 0.20% per week, 10.4% by simple annualisation, or about 10.95% compounded over
 52 identical positive weeks. Reaching that return by increasing leverage after
 seeing results would invalidate the test.
@@ -60,19 +61,19 @@ the position when measured volatility is high and enforce a hard exposure cap.
 
 ## Locked candidate specification
 
-The following is frozen before any response in the new test window is downloaded.
+The following is frozen before any holdout strategy result is inspected.
 
 ### Account and observations
 
 - Initial paper equity: USD 10,000.
 - Instrument: research feed symbol `XAUUSD`; one unit is treated as one troy
   ounce only for the historical arithmetic.
-- Inputs: provider-local M15 OHLC, tick volume and spread. Timestamps remain
+- Inputs: provider-local D1 OHLC, tick volume and spread. Timestamps remain
   unknown broker-server time, never UTC.
-- Decision frequency: the final complete bar of each provider-calendar month.
+- Decision frequency: the final complete D1 bar of each provider-calendar month.
   Month labels are source-clock labels, not London, New York or UTC sessions.
 - Execution: calculate with information available at the completed month-end
-  bar and change the position only at the next available bar open.
+  D1 bar and change the position only at the next available D1 bar open.
 - No clock/session, news, volume, AI or macroeconomic features.
 
 ### Direction signal
@@ -94,8 +95,11 @@ The trend score is their arithmetic mean, so it is one of -1, -1/3, +1/3 or
   account-returned unit precision when a real Practice account exists; for this
   source-only test retain six decimals and report that this is not proof the
   broker accepts that size.
-- Absolute notional is capped at USD 10,000. No leverage above 1x, martingale,
-  averaging down, pyramiding or post-result rescaling is permitted.
+- Absolute notional is capped at the fixed USD 10,000 research-account value.
+  Check the cap at execution and at every completed provider D1 close, and fail
+  the notional gate if it is exceeded. A rebalance that would exceed
+  conservative post-cost equity also fails that gate. No martingale, averaging
+  down, pyramiding or post-result rescaling is permitted.
 - Rebalance once per provider month. A sign change closes the old side and
   opens the new side at the same next-bar event with separate costs.
 
@@ -146,16 +150,20 @@ Those fields are account-specific in OANDA's schema.
 
 Use only the provider interval 2020-12-01 through 2023-12-31. The source's
 current free-preview endpoint limits requests to 31 days and describes complete
-history downloads as paid. This bounded D1-only window needs about 37 small
-requests and avoids reconstructing the seven-year intraday archive. No request
-for this window had been made when this specification was revised.
+history downloads as paid. This bounded D1-only window needs 37 requests of at
+most 31 inclusive calendar days and avoids reconstructing the seven-year
+intraday archive. Only tiny schema/range-limit probes were made before this
+freeze; no complete holdout or strategy result was inspected.
 
 - December 2020 through December 2021: warm-up for the 12-month momentum and
   volatility calculations and the zero-spread fallback; no pass/fail result.
 - Test A: 2022-01-01 through 2022-12-31 provider time.
 - Test B: 2023-01-01 through 2023-12-31 provider time.
-- Capital resets to USD 10,000 and the strategy is forced flat at the boundary;
-  no position, P/L or financing carries from Test A into Test B.
+- Capital resets to USD 10,000 for each test. At the end of the final complete
+  seven-day block, liquidate at the last completed provider D1 close strictly
+  before that block boundary and stop financing at that causal exit. Remain flat
+  through the reported incomplete final block. No position, P/L or financing
+  carries from Test A into Test B.
 
 The code, costs, signal and position rules must be frozen before Test A is
 inspected, and nothing may change between A and B. Both tests use the same
@@ -166,8 +174,16 @@ replications and not broker-forward evidence.
 
 Partition each test into consecutive non-overlapping seven-day blocks anchored
 at that test's provider-time start. Weekly P/L is the change in conservative
-marked equity after every spread, slippage, commission and financing debit.
-An incomplete final block is reported but excluded from the mean.
+marked equity after every spread, slippage, commission and financing debit. At
+the final complete-block boundary, use the causal last-completed-D1 exit defined
+above rather than charging financing or inventing a fill after the final source
+bar. Report the dates and length of the incomplete final block, but exclude it
+from every weekly statistic.
+
+Historical broker account margin requirements are unavailable from this
+anonymous feed. Margin is therefore explicitly **unavailable**, is not claimed
+as a passing gate, and keeps this result research-only. A later authenticated
+Practice evaluation must separately establish account-specific margin safety.
 
 Each test must independently satisfy every gate under the 10% financing stress:
 
@@ -179,10 +195,13 @@ Each test must independently satisfy every gate under the 10% financing stress:
 4. positive total after-cost P/L and profit factor above 1.0;
 5. maximum marked-equity drawdown no worse than -10%;
 6. positive provider-week Sharpe and positive median weekly P/L;
-7. no margin or 1x-notional-cap breach; and
+7. no fixed USD 10,000 1x-notional-cap breach; and
 8. after-cost return above both cash and a 1x-notional buy-and-hold benchmark
-   (`USD 10,000 / entry price` ounces) evaluated with the same transaction and
-   financing stresses over the same interval.
+   sized as
+   `USD 10,000 / ((entry open + full spread + 2 bps slippage) * (1 + 1 bp commission))`
+   ounces, so entry costs cannot create hidden leverage. Evaluate it with the
+   same exit costs and financing stresses over the same interval, liquidate at
+   the same causal last completed provider D1 close, and stop financing there.
 
 Also report the number and percentage of weeks above USD 20, profitable weeks,
 median, 5th percentile and worst weekly P/L. Do **not** require every week to be
@@ -193,7 +212,7 @@ whose confidence bound does not exceed USD 20 is **inconclusive**, not proof.
 
 ## Recommendation
 
-Implement and run this one locked candidate on the bounded untouched
+Implement and run this one locked candidate on the bounded, result-uninspected
 2020-12--2023 window.
 If either test fails or is inconclusive, report that no free method tested so
 far meets the USD 20 evidence contract and do not place a trade. If both pass,

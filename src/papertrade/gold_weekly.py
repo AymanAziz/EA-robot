@@ -216,6 +216,9 @@ class GoldWeeklyStrategySpec:
     financing_rule: str = "absolute prior-close notional times annual rate times calendar days/365"
     benchmark_rule: str = "same-cost unleveraged buy-and-hold with daily financing"
     mark_rule: str = "immediate adverse liquidation including spread, slippage, and commission"
+    account_margin_rule: str = (
+        "broker account margin unavailable; research-only; not evaluated as a pass gate"
+    )
     initial_equity_usd: float = 10_000.0
     momentum_months: tuple[int, ...] = (1, 3, 12)
     volatility_months: int = 12
@@ -396,6 +399,108 @@ def _bootstrap_lower_mean(values: np.ndarray, spec: GoldWeeklyStrategySpec) -> f
     return float(np.quantile(samples.mean(axis=1), spec.bootstrap_quantile))
 
 
+def classify_weekly_target_evidence(
+    weekly_pl_usd: list[float] | tuple[float, ...] | np.ndarray,
+    *,
+    maximum_drawdown: float,
+    buy_hold_net_pl_usd: float,
+    notional_cap_breached: bool,
+    spec: GoldWeeklyStrategySpec | None = None,
+) -> dict[str, Any]:
+    """Classify known weekly outcomes under the frozen USD 20 evidence contract."""
+    spec = spec or GoldWeeklyStrategySpec()
+    weekly = np.asarray(weekly_pl_usd, dtype=float)
+    if not np.isfinite(weekly).all():
+        raise ValueError("Weekly P/L evidence must contain only finite values")
+    complete_weeks = len(weekly)
+    mean = float(weekly.mean()) if complete_weeks else None
+    lower = _bootstrap_lower_mean(weekly, spec)
+    median = float(np.median(weekly)) if complete_weeks else None
+    gross_profit = float(weekly[weekly > 0].sum())
+    gross_loss = float(-weekly[weekly < 0].sum())
+    profit_factor = gross_profit / gross_loss if gross_loss > 0 else None
+    profit_factor_gate = profit_factor > 1 if profit_factor is not None else gross_profit > 0
+    deviation = float(weekly.std(ddof=1)) if complete_weeks > 1 else 0.0
+    sharpe = math.sqrt(52) * mean / deviation if deviation > 0 and mean is not None else None
+    total = float(weekly.sum())
+    required_total = spec.target_weekly_profit_usd * complete_weeks
+    gates = {
+        "at least 52 complete weeks": complete_weeks >= spec.minimum_complete_weeks,
+        "mean weekly net P/L above USD 20": mean is not None and mean > spec.target_weekly_profit_usd,
+        "one-sided 95% bootstrap lower mean above USD 20": (
+            lower is not None and lower > spec.target_weekly_profit_usd
+        ),
+        "positive total after-cost P/L": total > 0,
+        "total net P/L above USD 20 per complete week": total > required_total,
+        "weekly profit factor above one": profit_factor_gate,
+        "maximum drawdown no worse than -10%": maximum_drawdown >= -spec.maximum_drawdown,
+        "positive weekly Sharpe": sharpe is not None and sharpe > 0,
+        "positive median weekly P/L": median is not None and median > 0,
+        "no notional cap breach": not notional_cap_breached,
+        "outperform cash": total > 0,
+        "outperform same-cost buy-and-hold": total > buy_hold_net_pl_usd,
+    }
+    if complete_weeks < spec.minimum_complete_weeks:
+        status = "inconclusive"
+    elif not gates["mean weekly net P/L above USD 20"]:
+        status = "fail"
+    else:
+        non_confidence = [
+            value for name, value in gates.items()
+            if name != "one-sided 95% bootstrap lower mean above USD 20"
+        ]
+        if not all(non_confidence):
+            status = "fail"
+        elif not gates["one-sided 95% bootstrap lower mean above USD 20"]:
+            status = "inconclusive"
+        else:
+            status = "pass"
+    weeks_above_target = int((weekly > spec.target_weekly_profit_usd).sum())
+    profitable_weeks = int((weekly > 0).sum())
+    return {
+        "status": status,
+        "complete_weeks": complete_weeks,
+        "mean_weekly_net_pl_usd": mean,
+        "bootstrap_95_lower_mean_weekly_pl_usd": lower,
+        "total_net_pl_usd": total,
+        "required_total_net_pl_usd": required_total,
+        "weekly_profit_factor": profit_factor,
+        "weekly_sharpe": sharpe,
+        "maximum_drawdown": float(maximum_drawdown),
+        "median_weekly_pl_usd": median,
+        "fifth_percentile_weekly_pl_usd": (
+            float(np.quantile(weekly, 0.05)) if complete_weeks else None
+        ),
+        "worst_weekly_pl_usd": float(weekly.min()) if complete_weeks else None,
+        "weeks_above_usd_20": weeks_above_target,
+        "weeks_above_usd_20_percentage": (
+            100 * weeks_above_target / complete_weeks if complete_weeks else None
+        ),
+        "profitable_weeks": profitable_weeks,
+        "profitable_weeks_percentage": (
+            100 * profitable_weeks / complete_weeks if complete_weeks else None
+        ),
+        "weekly_pl_usd": weekly.tolist(),
+        "buy_hold_net_pl_usd": float(buy_hold_net_pl_usd),
+        "notional_cap_breached": bool(notional_cap_breached),
+        "gates": gates,
+    }
+
+
+def classify_weekly_target_pair(
+    test_a: Mapping[str, Any], test_b: Mapping[str, Any]
+) -> str:
+    """Apply fail-first then inconclusive precedence to two holdout classifications."""
+    statuses = (test_a["status"], test_b["status"])
+    if "fail" in statuses:
+        return "fail"
+    if "inconclusive" in statuses:
+        return "inconclusive"
+    if statuses != ("pass", "pass"):
+        raise ValueError("Weekly target status must be pass, fail, or inconclusive")
+    return "pass"
+
+
 def _frame_sha256(frame: pd.DataFrame) -> str:
     records = frame.reset_index().copy()
     records["provider_time"] = records["provider_time"].dt.strftime("%Y-%m-%dT%H:%M:%S")
@@ -493,6 +598,11 @@ def _simulate_test(
             )
         close = float(row["close"])
         spread = _spread_or_fallback(row["spread_usd"], fallback)
+        close_notional = abs(quantity * close)
+        maximum_notional = max(maximum_notional, close_notional)
+        cap_breach = cap_breach or close_notional > (
+            spec.initial_equity_usd * spec.maximum_notional_multiple + 0.01
+        )
         equity = _liquidation_equity(cash, quantity, close, spread, spec)
         snapshots.append({
             "provider_time": provider_time,
@@ -505,8 +615,7 @@ def _simulate_test(
         prior_time, prior_close, prior_period = provider_time, close, current_period
 
     last = snapshots[-1]
-    days_to_boundary = max((final_boundary - last["provider_time"]).total_seconds() / 86_400, 0.0)
-    cash = last["cash"] - abs(last["quantity"] * last["close"]) * financing_rate * days_to_boundary / 365
+    cash = last["cash"]
     quantity = last["quantity"]
     if quantity:
         spread = _spread_or_fallback(last["spread_usd"], fallback)
@@ -539,6 +648,9 @@ def _simulate_test(
         "partition_sha256": _frame_sha256(interval),
         "start": start.isoformat(),
         "end": end.isoformat(),
+        "complete_block_boundary": final_boundary.date().isoformat(),
+        "final_exit_provider_time": last["provider_time"].isoformat(),
+        "financing_stopped_at_provider_time": last["provider_time"].isoformat(),
     }
 
 
@@ -550,7 +662,7 @@ def _simulate_buy_hold(
     financing_rate: float,
     fallback: float,
     spec: GoldWeeklyStrategySpec,
-) -> float:
+) -> dict[str, Any]:
     boundaries = _weekly_boundaries(start, end)
     final_boundary = boundaries[-1]
     interval = frame[(frame.index >= pd.Timestamp(start)) & (frame.index < final_boundary)]
@@ -568,107 +680,66 @@ def _simulate_buy_hold(
         days = max((provider_time - prior_time).total_seconds() / 86_400, 0.0)
         cash -= abs(quantity * prior_close) * financing_rate * days / 365
         prior_time, prior_close = provider_time, float(row["close"])
-    remaining_days = max((final_boundary - prior_time).total_seconds() / 86_400, 0.0)
-    cash -= abs(quantity * prior_close) * financing_rate * remaining_days / 365
     exit_price = float(last["close"])
     exit_spread = _spread_or_fallback(last["spread_usd"], fallback)
     exit_fill = exit_price - exit_spread - exit_price * slippage
     cash += quantity * exit_fill * (1 - commission)
-    return cash - spec.initial_equity_usd
+    final_exit_provider_time = interval.index[-1].isoformat()
+    return {
+        "net_pl_usd": cash - spec.initial_equity_usd,
+        "final_exit_provider_time": final_exit_provider_time,
+        "financing_stopped_at_provider_time": final_exit_provider_time,
+    }
 
 
 def _summarize_test(
-    replay: Mapping[str, Any], benchmark_pl: float, spec: GoldWeeklyStrategySpec
+    replay: Mapping[str, Any], benchmark: Mapping[str, Any], spec: GoldWeeklyStrategySpec
 ) -> dict[str, Any]:
     weekly = np.asarray(replay["weekly_pl"], dtype=float)
-    complete_weeks = len(weekly)
-    mean = float(weekly.mean()) if complete_weeks else None
-    lower = _bootstrap_lower_mean(weekly, spec)
-    median = float(np.median(weekly)) if complete_weeks else None
-    gross_profit = float(weekly[weekly > 0].sum())
-    gross_loss = float(-weekly[weekly < 0].sum())
-    profit_factor = gross_profit / gross_loss if gross_loss > 0 else None
-    profit_factor_gate = profit_factor > 1 if profit_factor is not None else gross_profit > 0
     provider_equity = np.asarray(replay["provider_equity"], dtype=float)
     peaks = np.maximum.accumulate(provider_equity)
     drawdowns = np.divide(
         provider_equity - peaks, peaks, out=np.zeros_like(provider_equity), where=peaks != 0
     )
     max_drawdown = float(drawdowns.min())
-    deviation = float(weekly.std(ddof=1)) if complete_weeks > 1 else 0.0
-    sharpe = math.sqrt(52) * mean / deviation if deviation > 0 and mean is not None else None
-    total = float(replay["final_equity_usd"] - replay["starting_equity_usd"])
-    required_total = spec.target_weekly_profit_usd * complete_weeks
-    gates = {
-        "at least 52 complete weeks": complete_weeks >= spec.minimum_complete_weeks,
-        "mean weekly net P/L above USD 20": mean is not None and mean > spec.target_weekly_profit_usd,
-        "one-sided 95% bootstrap lower mean above USD 20": (
-            lower is not None and lower > spec.target_weekly_profit_usd
-        ),
-        "positive total after-cost P/L": total > 0,
-        "total net P/L above USD 20 per complete week": total > required_total,
-        "weekly profit factor above one": profit_factor_gate,
-        "maximum drawdown no worse than -10%": max_drawdown >= -spec.maximum_drawdown,
-        "positive weekly Sharpe": sharpe is not None and sharpe > 0,
-        "positive median weekly P/L": median is not None and median > 0,
-        "no notional cap breach": not replay["notional_cap_breached"],
-        "outperform cash": total > 0,
-        "outperform same-cost buy-and-hold": total > benchmark_pl,
-    }
-    if complete_weeks < spec.minimum_complete_weeks:
-        status = "inconclusive"
-    elif not gates["mean weekly net P/L above USD 20"]:
-        status = "fail"
-    else:
-        non_confidence = [value for name, value in gates.items()
-                          if name != "one-sided 95% bootstrap lower mean above USD 20"]
-        if not all(non_confidence):
-            status = "fail"
-        elif not gates["one-sided 95% bootstrap lower mean above USD 20"]:
-            status = "inconclusive"
-        else:
-            status = "pass"
+    classification = classify_weekly_target_evidence(
+        weekly,
+        maximum_drawdown=max_drawdown,
+        buy_hold_net_pl_usd=benchmark["net_pl_usd"],
+        notional_cap_breached=replay["notional_cap_breached"],
+        spec=spec,
+    )
+    complete_block_boundary = date.fromisoformat(replay["complete_block_boundary"])
+    end = date.fromisoformat(replay["end"])
+    excluded_days = max((end - complete_block_boundary).days + 1, 0)
     return {
-        "status": status,
+        **classification,
         "starting_equity_usd": replay["starting_equity_usd"],
         "final_equity_usd": replay["final_equity_usd"],
-        "complete_weeks": complete_weeks,
-        "mean_weekly_net_pl_usd": mean,
-        "bootstrap_95_lower_mean_weekly_pl_usd": lower,
-        "total_net_pl_usd": total,
-        "required_total_net_pl_usd": required_total,
-        "weekly_profit_factor": profit_factor,
-        "weekly_sharpe": sharpe,
-        "maximum_drawdown": max_drawdown,
-        "median_weekly_pl_usd": median,
-        "fifth_percentile_weekly_pl_usd": float(np.quantile(weekly, 0.05)),
-        "worst_weekly_pl_usd": float(weekly.min()),
-        "weeks_above_usd_20": int((weekly > spec.target_weekly_profit_usd).sum()),
-        "profitable_weeks": int((weekly > 0).sum()),
-        "weekly_pl_usd": weekly.tolist(),
-        "buy_hold_net_pl_usd": benchmark_pl,
         "maximum_absolute_notional_usd": replay["maximum_absolute_notional_usd"],
-        "notional_cap_breached": replay["notional_cap_breached"],
         "transactions": tuple(dict(item) for item in replay["transactions"]),
         "partition_sha256": replay["partition_sha256"],
-        "gates": gates,
+        "final_exit_provider_time": replay["final_exit_provider_time"],
+        "financing_stopped_at_provider_time": replay["financing_stopped_at_provider_time"],
+        "buy_hold_final_exit_provider_time": benchmark["final_exit_provider_time"],
+        "buy_hold_financing_stopped_at_provider_time": (
+            benchmark["financing_stopped_at_provider_time"]
+        ),
+        "excluded_incomplete_final_block": {
+            "days": excluded_days,
+            "start_provider_date": (
+                complete_block_boundary.isoformat() if excluded_days else None
+            ),
+            "end_provider_date": end.isoformat() if excluded_days else None,
+        },
     }
-
-
-def _status_for_pair(test_a: Mapping[str, Any], test_b: Mapping[str, Any]) -> str:
-    statuses = (test_a["status"], test_b["status"])
-    if "fail" in statuses:
-        return "fail"
-    if "inconclusive" in statuses:
-        return "inconclusive"
-    return "pass"
 
 
 def run_gold_weekly_target_test(
     prepared: PreparedDailyGoldHistory,
     spec: GoldWeeklyStrategySpec | None = None,
 ) -> dict[str, Any]:
-    """Evaluate one frozen TSM rule on two independent chronological holdouts."""
+    """Evaluate one frozen TSM rule on two separate chronological holdouts."""
     spec = spec or GoldWeeklyStrategySpec()
     frame = prepared.frame
     if _prepared_data_sha256(frame, prepared.manifest) != prepared.data_sha256:
@@ -709,7 +780,7 @@ def run_gold_weekly_target_test(
             "annual_financing_rate": rate,
             "test_a": summary_a,
             "test_b": summary_b,
-            "overall_status": _status_for_pair(summary_a, summary_b),
+            "overall_status": classify_weekly_target_pair(summary_a, summary_b),
         }
         if math.isclose(rate, spec.primary_financing_rate):
             primary_a, primary_b = summary_a, summary_b
@@ -726,10 +797,14 @@ def run_gold_weekly_target_test(
         "strategy": "fixed 1/3/12-month time-series momentum with volatility targeting",
         "development_spread_p99_usd": fallback,
         "primary_financing_rate": spec.primary_financing_rate,
+        "account_margin_evidence": {
+            "status": "unavailable",
+            "classification": "research-only; not evaluated as a pass gate",
+        },
         "test_a": primary_a,
         "test_b": primary_b,
         "financing_sensitivities": sensitivities,
-        "overall_status": _status_for_pair(primary_a, primary_b),
+        "overall_status": classify_weekly_target_pair(primary_a, primary_b),
     }
     report["report_sha256"] = hashlib.sha256(_canonical_json(report).encode()).hexdigest()
     return report
