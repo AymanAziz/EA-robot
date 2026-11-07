@@ -58,7 +58,24 @@ def main():
     gold.add_argument("--end", required=True, help="inclusive provider-clock date (YYYY-MM-DD)")
     gold.add_argument("--cache", required=True, help="private verified history cache JSON path")
     gold.add_argument("--report", required=True, help="deterministic evidence report JSON path")
+    weekly_gold = commands.add_parser(
+        "gold-weekly-target", help="research-only XAU/USD weekly-profit target test"
+    )
+    weekly_gold.add_argument("--cache", required=True, help="private verified D1 history cache JSON path")
+    weekly_gold.add_argument("--report", required=True, help="private deterministic evidence report JSON path")
     args = parser.parse_args()
+    if args.command == "gold-weekly-target":
+        from papertrade.gold_weekly import run_gold_weekly_target_command
+
+        report = run_gold_weekly_target_command(args.cache, args.report)
+        output({
+            "report": str(Path(args.report)),
+            "overall_status": report["overall_status"],
+            "test_a": report["test_a"]["status"],
+            "test_b": report["test_b"]["status"],
+            "warning": report["warning"],
+        })
+        return
     if args.command == "gold-double-test":
         from papertrade.gold_research import (
             SOURCE_ID,
