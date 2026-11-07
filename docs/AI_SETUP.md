@@ -1,6 +1,6 @@
 # Cloud AI setup, operation and validation
 
-Cloud AI extends the existing LightGBM platform. It does not replace training, expected-return/cost checks, risk limits, paper adapters or broker reconciliation. All keys and usage records belong on the Oracle backend, while Streamlit Community Cloud is an authenticated HTTPS frontend. The default configuration makes no provider calls, enables no paid use and opens no new strategy entries.
+Cloud AI extends the existing LightGBM platform. It does not replace training, expected-return/cost checks, risk limits, paper adapters or broker reconciliation. All keys and usage records belong on the persistent backend host, while Streamlit Community Cloud is an authenticated HTTPS frontend. The backend can be an Oracle VM or the documented always-on Mac/Linux host published through Tailscale Funnel. The default configuration makes no provider calls, enables no paid use and opens no new strategy entries.
 
 ## Safe default configuration
 
@@ -22,12 +22,12 @@ PT_STRATEGY=quant_only
 PT_STRATEGY_EXECUTION_ENABLED=false
 ```
 
-`.env.example` lists the remaining defaults. Pydantic also accepts the requested unprefixed `AI_PROVIDER`, `AI_FALLBACK_PROVIDER`, `GROQ_API_KEY`, `GROQ_MODEL`, `HERMES_API_KEY`, `HERMES_MODEL` and `HERMES_BASE_URL` aliases. Use one spelling per value; the `PT_` form has precedence when both exist. Do not put credentials on a shell command line, in Git, in Streamlit Community Cloud Secrets, or in an issue/screenshot. Edit the VM's protected `.env` privately and restart the relevant supervised process after configuration changes.
+`.env.example` lists the remaining defaults. Pydantic also accepts the requested unprefixed `AI_PROVIDER`, `AI_FALLBACK_PROVIDER`, `GROQ_API_KEY`, `GROQ_MODEL`, `HERMES_API_KEY`, `HERMES_MODEL` and `HERMES_BASE_URL` aliases. Use one spelling per value; the `PT_` form has precedence when both exist. Do not put credentials on a shell command line, in Git, in Streamlit Community Cloud Secrets, or in an issue/screenshot. Edit the backend host's protected `.env` privately and restart the relevant supervised process after configuration changes.
 
 ## Groq: default provider
 
 1. Create or use an API account in the official [Groq console](https://console.groq.com). Confirm its actual plan, enabled billing, accessible models and account-specific limits.
-2. Store its API key as `PT_GROQ_API_KEY` on the VM. Set `PT_AI_ACCOUNT_TIER=free` only after verifying a free account; this is an operator assertion, not an API-provided billing guarantee. Keep `PT_AI_ALLOW_PAID=false`.
+2. Store its API key as `PT_GROQ_API_KEY` on the backend host. Set `PT_AI_ACCOUNT_TIER=free` only after verifying a free account; this is an operator assertion, not an API-provided billing guarantee. Keep `PT_AI_ALLOW_PAID=false`.
 3. Discover the account-visible model catalog:
 
 ```bash
@@ -143,4 +143,4 @@ Use **AI analysis** for actual model/recommendation/reasons, latency, token usag
 - Rejected schema/evidence: inspect sanitized errors and context provenance; never relax risk because a narrative sounds persuasive.
 - No comparison yet: genuine forward observations/outcomes need time to accumulate. Today’s LLM cannot reconstruct yesterday’s available opinion.
 
-Current implementation checks use mocks for authenticated Groq/Hermes contracts. Real provider access, model compatibility, plan/billing controls, Oracle/systemd/ARM64 deployment, public TLS and Community Cloud publication need the user's accounts and deployment environment. They are not claimed verified by mocked tests. Primary provider sources are collected in [AI_PROVIDER_SOURCES.md](AI_PROVIDER_SOURCES.md).
+Current implementation checks use mocks for authenticated Groq/Hermes contracts. Real provider access, model compatibility, plan/billing controls, target-host process supervision/platform deployment, public TLS and Community Cloud publication need the user's accounts and deployment environment. They are not claimed verified by mocked tests. Primary provider sources are collected in [AI_PROVIDER_SOURCES.md](AI_PROVIDER_SOURCES.md).

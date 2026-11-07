@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     min_probability: float = Field(0.60, ge=0.5, lt=1)
     min_net_edge_bps: float = Field(5, ge=0)
     min_validation_trades: int = Field(30, ge=5)
+    # The only registered research hypotheses are the legacy one-hour horizon
+    # and the predeclared twelve-hour crypto horizon. A model and its runtime
+    # exits must share this value through the validation-policy fingerprint.
+    holding_horizon_bars: int = Field(4, ge=1)
     allow_unhosted_protection: bool = False
     watchdog_url: SecretStr = SecretStr("")
     alpaca_key: SecretStr = SecretStr("")
@@ -73,4 +77,6 @@ class Settings(BaseSettings):
     def local_storage(self):
         if not self.database_url.startswith("sqlite:///"):
             raise ValueError("This release supports local SQLite storage only")
+        if self.holding_horizon_bars not in {4, 48}:
+            raise ValueError("Holding horizon must be a registered 4-bar or 48-bar policy")
         return self

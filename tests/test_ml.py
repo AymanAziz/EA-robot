@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import json
 
 import numpy as np
 import pandas as pd
@@ -7,7 +8,7 @@ import pytest
 from papertrade.config import Settings
 from papertrade.domain import INSTRUMENTS
 from papertrade.features import build_features
-from papertrade.ml import ModelError, make_labels, predict, promote_model, train_model
+from papertrade.ml import ModelError, backtest_saved_model, make_labels, predict, promote_model, train_model
 
 
 def synthetic_history(n=1600):
@@ -48,11 +49,11 @@ def test_label_uses_next_open_and_never_last_unknown_candles():
 
 def test_missing_model_disables_prediction(tmp_path):
     with pytest.raises(ModelError, match="active model"):
-        predict(synthetic_history(), INSTRUMENTS["BTC/USD"], Settings(models_dir=tmp_path))
+        predict(synthetic_history(), INSTRUMENTS["BTC/USD"], Settings(_env_file=None, models_dir=tmp_path))
 
 
 def test_genuine_lightgbm_candidate_requires_explicit_validation_before_activation(tmp_path):
-    settings = Settings(models_dir=tmp_path)
+    settings = Settings(_env_file=None, models_dir=tmp_path)
     frame = synthetic_history()
     metadata = train_model(frame, INSTRUMENTS["BTC/USD"], settings,
                            now=datetime(2025, 1, 20, tzinfo=timezone.utc), params={"n_estimators": 20})
@@ -70,13 +71,40 @@ def test_genuine_lightgbm_candidate_requires_explicit_validation_before_activati
     assert repeated["version"] == metadata["version"]
     assert repeated["trained_at"] == metadata["trained_at"]
     assert artifact.stat().st_mtime_ns == before
+    twelve_hour_policy = settings.model_copy(update={"holding_horizon_bars": 48})
+    with pytest.raises(ModelError, match="horizon"):
+        backtest_saved_model(frame, INSTRUMENTS["BTC/USD"], twelve_hour_policy, metadata["version"])
     if not metadata["accepted"]:
         with pytest.raises(ModelError, match="validation"):
             promote_model("BTC/USD", metadata["version"], settings)
 
 
+def test_candidate_policy_uses_the_configured_strategy_horizon(tmp_path):
+    settings = Settings(_env_file=None, models_dir=tmp_path, holding_horizon_bars=48)
+    metadata = train_model(synthetic_history(2400), INSTRUMENTS["BTC/USD"], settings,
+                           now=datetime(2025, 2, 1, tzinfo=timezone.utc), params={"n_estimators": 10})
+
+    assert metadata["horizon"] == 48
+    assert metadata["split"]["purge_bars"] == 49
+    assert metadata["validation_policy"]["settings"]["holding_horizon_bars"] == 48
+
+
+def test_model_metadata_cannot_claim_a_horizon_different_from_its_policy(tmp_path):
+    settings = Settings(_env_file=None, models_dir=tmp_path)
+    frame = synthetic_history(1600)
+    metadata = train_model(frame, INSTRUMENTS["BTC/USD"], settings,
+                           now=datetime(2025, 1, 20, tzinfo=timezone.utc), params={"n_estimators": 10})
+    path = tmp_path / "BTC_USD" / metadata["version"] / "metadata.json"
+    tampered = json.loads(path.read_text())
+    tampered["horizon"] = 48
+    path.write_text(json.dumps(tampered))
+
+    with pytest.raises(ModelError, match="horizon"):
+        backtest_saved_model(frame, INSTRUMENTS["BTC/USD"], settings, metadata["version"])
+
+
 def test_tampered_artifact_cannot_be_promoted(tmp_path):
-    settings = Settings(models_dir=tmp_path)
+    settings = Settings(_env_file=None, models_dir=tmp_path)
     metadata = train_model(synthetic_history(), INSTRUMENTS["BTC/USD"], settings,
                            now=datetime(2025, 1, 20, tzinfo=timezone.utc), params={"n_estimators": 10})
     path = tmp_path / "BTC_USD" / metadata["version"] / "booster.txt"
@@ -102,7 +130,7 @@ def test_validated_native_lightgbm_can_be_promoted_and_inferred_but_expires(tmp_
     opened = np.r_[100, close[:-1]]
     frame = pd.DataFrame({"open": opened, "close": close, "high": np.maximum(opened, close) + .1,
                          "low": np.minimum(opened, close) - .1, "volume": 10000.}, index=index)
-    settings = Settings(models_dir=tmp_path)
+    settings = Settings(_env_file=None, models_dir=tmp_path)
     candidate = train_model(frame, INSTRUMENTS["BTC/USD"], settings, now=now.to_pydatetime(), params={"n_estimators": 30})
     assert candidate["accepted"], candidate["validation_failures"]
     promote_model("BTC/USD", candidate["version"], settings)

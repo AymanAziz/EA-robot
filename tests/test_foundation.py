@@ -12,6 +12,11 @@ def test_live_mode_cannot_be_configured():
         Settings(_env_file=None, mode="live")
 
 
+def test_unregistered_holding_horizon_cannot_be_configured():
+    with pytest.raises(ValidationError, match="registered 4-bar or 48-bar"):
+        Settings(_env_file=None, holding_horizon_bars=12)
+
+
 def test_database_initialization_is_idempotent_and_controls_persist(db):
     db.initialize()
     with db.session() as session:

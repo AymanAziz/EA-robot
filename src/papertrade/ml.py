@@ -1,7 +1,7 @@
 """LightGBM research pipeline with chronological calibration and explicit candidate promotion.
 
 Artifacts use native LightGBM text and JSON; inference never unpickles executable Python.
-One-hour labels begin at the NEXT bar's opening price, after the decision is observable.
+Labels begin at the NEXT bar's opening price, after the decision is observable.
 """
 from __future__ import annotations
 
@@ -30,6 +30,7 @@ from papertrade.config import Settings
 from papertrade.data import validate_candles
 from papertrade.domain import INSTRUMENTS, Instrument, utcnow
 from papertrade.features import FEATURE_VERSION, build_features, feature_regime
+from papertrade.horizon import HorizonPolicy
 
 
 class ModelError(RuntimeError):
@@ -48,12 +49,11 @@ class Prediction:
 
 
 def make_labels(candles: pd.DataFrame, horizon: int = 4) -> pd.DataFrame:
-    if horizon < 1:
-        raise ValueError("Positive label horizon required")
-    gross = candles.open.shift(-(horizon + 1)) / candles.open.shift(-1) - 1
+    holding = HorizonPolicy(horizon)
+    gross = candles.open.shift(-holding.purge_bars) / candles.open.shift(-1) - 1
     # Do not label positions that would span missing candles or a closed market.
-    future_index = pd.Series(candles.index, index=candles.index).shift(-(horizon + 1))
-    consecutive = future_index - candles.index.to_series() == pd.Timedelta(minutes=15 * (horizon + 1))
+    future_index = pd.Series(candles.index, index=candles.index).shift(-holding.purge_bars)
+    consecutive = future_index - candles.index.to_series() == pd.Timedelta(holding.outcome_delta)
     gross = gross.where(consecutive).dropna()
     return pd.DataFrame({"gross_return": gross, "label": (gross > 0).astype(int)})
 
@@ -113,14 +113,15 @@ def _evaluation(candles, instrument, probs, expected, threshold, start, end, set
     report = run_backtest(candles, probs, instrument, threshold=threshold, expected_returns=expected,
                           start=start, end=end, min_edge_bps=settings.min_net_edge_bps,
                           risk_per_trade=settings.risk_per_trade, daily_loss_limit=settings.daily_loss_limit,
-                          max_drawdown=settings.max_drawdown, initial_cash=settings.capital, settings=settings)
+                          max_drawdown=settings.max_drawdown, initial_cash=settings.capital, settings=settings,
+                          horizon=settings.holding_horizon_bars)
     features = build_features(candles)
     rule = pd.Series(np.where((features.sma20_gap > 0) & (features.return_4 > 0) &
                               (features.regime == 1) & (features.rsi14 < 80), .99, .01), index=features.index)
     baseline = run_backtest(candles, rule, instrument, threshold=.6, start=start, end=end,
                             expected_returns=features.return_4, initial_cash=settings.capital, settings=settings,
                             risk_per_trade=settings.risk_per_trade, daily_loss_limit=settings.daily_loss_limit,
-                            max_drawdown=settings.max_drawdown)
+                            max_drawdown=settings.max_drawdown, horizon=settings.holding_horizon_bars)
     return report, {"rule": {"metrics": baseline["metrics"], "description": "positive 4-bar momentum above SMA20 in uptrend; RSI<80"},
                     "buy_hold": _buy_hold(candles, instrument, start, end, settings.capital)}
 
@@ -151,12 +152,13 @@ def validation_policy(instrument: Instrument, settings: Settings) -> dict:
     keys = ("execution", "capital", "risk_per_trade", "daily_loss_limit", "max_drawdown", "max_positions",
             "max_total_exposure", "max_instrument_exposure", "max_correlated_exposure",
             "max_data_age_seconds", "max_quote_age_seconds", "min_probability", "min_net_edge_bps",
-            "min_validation_trades", "allow_unhosted_protection")
+            "min_validation_trades", "holding_horizon_bars", "allow_unhosted_protection")
     source = Path(__file__).parent
-    policy = {"version": "long_only_horizon4_v2", "instrument": asdict(instrument),
+    policy = {"version": "long_only_configurable_horizon_v3", "instrument": asdict(instrument),
               "settings": {key: getattr(settings, key) for key in keys},
               "source_sha256": {name: _sha(source / name) for name in
-                                 ("decisions.py", "risk.py", "features.py", "backtest.py", "ml.py", "calendars.py", "data.py")}}
+                                 ("decisions.py", "risk.py", "features.py", "backtest.py", "ml.py", "calendars.py",
+                                  "data.py", "engine.py", "horizon.py")}}
     policy["sha256"] = hashlib.sha256(json.dumps(policy, sort_keys=True, allow_nan=False).encode()).hexdigest()
     return policy
 
@@ -167,14 +169,16 @@ def train_model(candles: pd.DataFrame, instrument: Instrument, settings: Setting
     policy = validation_policy(instrument, settings)
     candles = validate_candles(candles, now, instrument.market)
     features = build_features(candles)
-    labels = make_labels(candles)
+    holding = HorizonPolicy(settings.holding_horizon_bars)
+    horizon = holding.bars
+    labels = make_labels(candles, horizon=horizon)
     joined = features.join(labels, how="inner").dropna()
     if len(joined) < 600:
         raise ModelError("At least 600 usable labeled candles are required; collect more history")
     names = list(features.columns)
     x = joined[names]
     n = len(joined)
-    gap = 5  # Four-bar holding horizon plus next-bar entry.
+    gap = holding.purge_bars
     a, b, c = int(n * .50), int(n * .65), int(n * .80)
     train, calibration, validation, test = (joined.iloc[:a-gap], joined.iloc[a:b-gap],
                                            joined.iloc[b:c-gap], joined.iloc[c:])
@@ -208,7 +212,8 @@ def train_model(candles: pd.DataFrame, instrument: Instrument, settings: Setting
         trial = run_backtest(candles, probabilities, instrument, threshold=threshold, expected_returns=expected,
                               start=validation.index[0], end=validation.index[-1], min_edge_bps=settings.min_net_edge_bps,
                               risk_per_trade=settings.risk_per_trade, daily_loss_limit=settings.daily_loss_limit,
-                              max_drawdown=settings.max_drawdown, initial_cash=settings.capital, settings=settings)
+                              max_drawdown=settings.max_drawdown, initial_cash=settings.capital, settings=settings,
+                              horizon=horizon)
         score = trial["metrics"]["total_return"] if trial["metrics"]["trade_count"] >= settings.min_validation_trades else -float("inf")
         if score > best_score:
             best_score, selected_threshold = score, threshold
@@ -233,7 +238,8 @@ def train_model(candles: pd.DataFrame, instrument: Instrument, settings: Setting
             fold_report = run_backtest(candles, fold_prob, instrument, threshold=settings.min_probability,
                                        expected_returns=_expected(fold_prob, win, loss),
                                        start=evaluation.index[0], end=evaluation.index[-1],
-                                       min_edge_bps=settings.min_net_edge_bps, initial_cash=settings.capital, settings=settings)
+                                       min_edge_bps=settings.min_net_edge_bps, initial_cash=settings.capital,
+                                       settings=settings, horizon=horizon)
             walk_forward.append({"fold": fold + 1, "train_end": subtrain.index[-1].isoformat(),
                                  "calibration_end": subcal.index[-1].isoformat(),
                                  "test_start": evaluation.index[0].isoformat(), "test_end": evaluation.index[-1].isoformat(),
@@ -278,7 +284,7 @@ def train_model(candles: pd.DataFrame, instrument: Instrument, settings: Setting
         "symbol": instrument.symbol, "market": instrument.market, "version": version, "algorithm": "LightGBM",
         "trained_at": now.astimezone(timezone.utc).isoformat(), "data_sha256": data_digest,
         "data_start": candles.index[0].isoformat(), "data_end": candles.index[-1].isoformat(),
-        "feature_version": FEATURE_VERSION, "feature_names": names, "horizon": 4,
+        "feature_version": FEATURE_VERSION, "feature_names": names, "horizon": horizon,
         "validation_policy": policy,
         "params": hyperparameters, "threshold": selected_threshold, "positive_mean": positive_mean,
         "negative_mean": negative_mean, "accepted": not failures, "validation_failures": failures,
@@ -324,6 +330,11 @@ def _load(symbol, settings, version=None, active_required=False):
         metadata = json.loads((folder / "metadata.json").read_text())
         if metadata["symbol"] != symbol or metadata["version"] != version or metadata["feature_version"] != FEATURE_VERSION:
             raise ModelError("Model metadata is incompatible")
+        policy_settings = metadata.get("validation_policy", {}).get("settings", {})
+        horizon = metadata.get("horizon")
+        if (horizon != settings.holding_horizon_bars
+                or policy_settings.get("holding_horizon_bars") != horizon):
+            raise ModelError("Model holding horizon does not match the current validated policy")
         if metadata["validation_policy"]["sha256"] != validation_policy(INSTRUMENTS[symbol], settings)["sha256"]:
             raise ModelError("Trading validation policy changed; retraining required")
         if pointer is not None and pointer["metadata_sha256"] != _sha(folder / "metadata.json"):

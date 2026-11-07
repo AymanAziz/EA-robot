@@ -19,12 +19,13 @@ def history(count=80, down=False):
                          "low": opened - .1, "volume": 1000.}, index=index)
 
 
-def record_model(db, version="v1", reference=.1):
+def record_model(db, version="v1", reference=.1, horizon=4):
     with db.session() as session:
         session.add(ModelVersion(symbol="BTC/USD", version=version, accepted=True, active=True,
             created_at=START - timedelta(days=1), metrics={
                 "trained_at": (START - timedelta(days=1)).isoformat(),
                 "data_end": (START - timedelta(days=1, hours=1)).isoformat(),
+                "horizon": horizon,
                 "classification": {"brier": reference}}))
 
 
@@ -60,6 +61,17 @@ def test_missing_future_candles_and_incomplete_outcomes_are_not_scored(db):
     result = monitor_predictions(db, "BTC/USD", frame, frame.index[-1].to_pydatetime())
     assert result["models"]["v1"]["count"] == 14
     assert result["status"] == "warming_up"
+
+
+def test_prediction_matures_only_after_its_recorded_model_horizon(db):
+    record_model(db, horizon=48)
+    record_predictions(db, count=1)
+    frame = history(40)
+
+    result = monitor_predictions(db, "BTC/USD", frame, frame.index[-1].to_pydatetime() + timedelta(minutes=15))
+
+    assert result["models"]["v1"]["count"] == 0
+    assert result["excluded"]["outcome_not_mature_or_missing"] == 1
 
 
 def test_bad_recent_performance_is_diagnostic_only_after_minimum_count(db):

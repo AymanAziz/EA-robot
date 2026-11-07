@@ -72,6 +72,9 @@ def test_missing_cloud_backend_has_no_local_fallback_and_exposes_no_secret(monke
     assert not app.exception
     assert app.error
     assert "must-never-display" not in app.error[0].value
+    assert "persistent backend host" in app.error[0].value
+    assert "Do not add trading or AI credentials to Community Cloud" in app.error[0].value
+    assert "Oracle" not in app.error[0].value
     assert not app.text_input
 
 

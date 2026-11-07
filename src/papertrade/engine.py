@@ -20,6 +20,7 @@ from papertrade.config import Settings
 from papertrade.db import Database, aware
 from papertrade.decisions import decide
 from papertrade.domain import INSTRUMENTS, Account, Broker, BrokerOrder, OrderRejected, OrderRequest, utcnow
+from papertrade.horizon import HorizonPolicy
 from papertrade.logging import redact
 from papertrade.models import (AuditLog, Control, FillRow, Health, InstrumentRow, OrderRow, PortfolioSnapshot,
                                PositionRow, PredictionRow, RiskEvent, Run, SignalRow, StrategyObservation)
@@ -38,6 +39,7 @@ class TradingEngine:
                  sources: dict[str, object] | None = None, predictor: Callable | None = None,
                  clock: Callable = utcnow, ai_service=None):
         self.settings, self.db = settings, db
+        self.holding = HorizonPolicy(settings.holding_horizon_bars)
         with db.session() as session:
             session.execute(insert(Control).values(key="execution_mode", value=settings.execution).on_conflict_do_nothing())
             if session.get(Control, "execution_mode").value != settings.execution:
@@ -284,7 +286,8 @@ class TradingEngine:
                 symbol=request.symbol, action=request.action, side=request.side, qty=request.qty,
                 reference_price=request.reference_price, stop_loss=request.stop_loss,
                 take_profit=request.take_profit, status="prepared",
-                expires_at=candle_slot(self.clock()) + timedelta(minutes=60) if request.side == "buy" else None))
+                expires_at=(candle_slot(self.clock()) + self.holding.hold_delta
+                            if request.side == "buy" else None)))
         # Re-read durable controls immediately before submitting a new entry.
         with self.db.session() as session:
             instrument_enabled = session.get(InstrumentRow, request.symbol)
@@ -552,7 +555,9 @@ class TradingEngine:
                                    or self.db.control("close_requested", False),
                             daily_circuit=self.db.control("daily_circuit") == now.date().isoformat(),
                             broker_cash=self.accounts.get(broker.name).cash if broker.name in self.accounts else 0,
-                            session_remaining_ok=is_market_open(instrument.market, decision_now + timedelta(minutes=60))),
+                            session_remaining_ok=(self.holding.permits_market(instrument.market)
+                                and is_market_open(instrument.market,
+                                    decision_now + self.holding.hold_delta))),
                             self.settings)
                         if not approval.approved or decision.action != "BUY":
                             action, reason = "HOLD", approval.reason if not approval.approved else decision.reason

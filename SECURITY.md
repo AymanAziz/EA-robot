@@ -10,7 +10,7 @@ The local simulator is persistent but is not a broker account. Its fills are cle
 
 Use `.env` or server environment variables; `.env` is ignored by Git and excluded from Docker builds. `.env.example` contains no real secrets. `scripts/configure_env.py` stores an Argon2 password hash and random backend token without exposing the password to command-line history. Keep the real file at mode `0600` and grant only the application account and operators access. Never put API keys, tokens or password values in screenshots, issue bodies, dashboard tables, model metadata or logs.
 
-Groq/Hermes keys belong only on the Oracle VM. Streamlit Community Cloud receives only its public HTTPS backend URL and display refresh setting; users authenticate through the existing login form. Do not copy the VM's `.env`, administrator password hash, machine bearer, brokerage account IDs or AI keys into Community Cloud Secrets. Actual `.streamlit/secrets.toml` files are Git-ignored; the checked-in example contains no credentials. AI requests contain bounded market evidence and open-position facts, which is an intentional transfer to the selected third-party provider; do not append personal/account/credential material to that context.
+Groq/Hermes keys belong only on the persistent backend host. Streamlit Community Cloud receives only its public HTTPS backend URL and display refresh setting; users authenticate through the existing login form. Do not copy the backend host's `.env`, administrator password hash, machine bearer, brokerage account IDs or AI keys into Community Cloud Secrets. Actual `.streamlit/secrets.toml` files are Git-ignored; the checked-in example contains no credentials. AI requests contain bounded market evidence and open-position facts, which is an intentional transfer to the selected third-party provider; do not append personal/account/credential material to that context.
 
 Use dedicated paper/practice credentials with the minimum account authority the provider offers. Rotate credentials if exposed, and rotate the backend token after suspected session compromise. Do not print resolved Compose configuration or enable wire-level HTTP debug logs. The dashboard only receives authenticated system records; configuration objects and raw provider headers are not a dashboard response.
 
@@ -32,7 +32,7 @@ The risk engine independently enforces capped exposure, quantity/risk budgets, d
 
 Order intents and unique client IDs are persistent before submission. Unknown responses remain uncertain until lookup/reconciliation resolves them; the platform does not blindly retry a POST or assume a canceled/filled status. A database restore must be reconciled with the actual broker before entries resume. Use dedicated paper accounts to avoid external orders changing the portfolio unexpectedly.
 
-Hosted stop/target orders are preferred but do not guarantee an exact fill price. Alpaca crypto lacks hosted bracket protection and remains entry-disabled by default. Software monitoring is an explicit paper-only opt-in requiring healthy independent minute monitoring and a recent successful external-watchdog heartbeat. The persistent 60-minute maximum holding period is independent of model availability. Host downtime, provider outages and price gaps remain risks even with those controls.
+Hosted stop/target orders are preferred but do not guarantee an exact fill price. Alpaca crypto lacks hosted bracket protection and remains entry-disabled by default. Software monitoring is an explicit paper-only opt-in requiring healthy independent minute monitoring and a recent successful external-watchdog heartbeat. The durable, policy-bound holding expiry is independent of model availability. Host downtime, provider outages and price gaps remain risks even with those controls.
 
 ## Untrusted AI and spending authority
 
@@ -46,7 +46,7 @@ AI is disabled by default, with `PT_AI_ACCOUNT_TIER=unverified`, `PT_AI_ALLOW_PA
 
 SQLite and simulator ledgers are local to one machine. WAL enables concurrent reads with short transactions; it is not a clustered database. Do not mount state on NFS or allow several hosts to run the same engine. Preserve unique constraints, migrations and order journals; deleting state to clear an error can create duplicate orders.
 
-Deployment services run as the unprivileged `papertrade` user with a restricted write directory, private temporary files, no new privileges and resource limits. The AI worker has a separate process/lock so slow provider HTTP does not hold the trading execution lock. Do not run the engine as root. Restrict inbound networking at both Oracle and host-firewall layers. Back up with the SQLite backup API; restore databases only with all writers stopped, including the AI worker, no stale WAL files and an explicit paused reconciliation. Preserve AI usage reservations and strategy approval provenance during recovery rather than resetting a daily budget by deleting records.
+Deployment services run as the unprivileged deployment user with a restricted write directory, private temporary files and appropriate process supervision for the host. The AI worker has a separate process/lock so slow provider HTTP does not hold the trading execution lock. Do not run the engine as root. Restrict inbound networking at both the public proxy/tunnel and host-firewall layers. Back up with the SQLite backup API; restore databases only with all writers stopped, including the AI worker, no stale WAL files and an explicit paused reconciliation. Preserve AI usage reservations and strategy approval provenance during recovery rather than resetting a daily budget by deleting records.
 
 ## Dependency and source review
 
@@ -56,7 +56,7 @@ python -m pytest -q
 python -m ruff check src tests
 ```
 
-Review every dependency finding against the installed version and deployment exposure; resolve or explicitly record material findings before public use. Follow official security advisories and update within the declared compatibility ranges only after tests pass. A clean dependency scan is not a penetration test. Production deployment configuration, TLS renewal, firewall exposure, backup restoration and external heartbeat delivery need tests on the target VM.
+Review every dependency finding against the installed version and deployment exposure; resolve or explicitly record material findings before public use. Follow official security advisories and update within the declared compatibility ranges only after tests pass. A clean dependency scan is not a penetration test. Production deployment configuration, TLS renewal, firewall exposure, backup restoration and external heartbeat delivery need tests on the target backend host.
 
 ## Incident response
 

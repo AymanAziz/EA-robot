@@ -17,7 +17,8 @@ def observations(frame, *, recommendation="BUY"):
         result.append(dict(symbol="BTC/USD", candle_at=stamp.isoformat(),
             decision_at=(close + pd.Timedelta(seconds=20)).isoformat(), quant_model_version="quant-v1",
             quant_data_end=frame.index[40].isoformat(), quant_trained_at=frame.index[45].isoformat(),
-            quant_model_accepted=True, quant_threshold=.6, execution_venue="local_simulator", probability=.9, expected_return=.02,
+            quant_model_accepted=True, quant_threshold=.6, quant_horizon_bars=4,
+            execution_venue="local_simulator", probability=.9, expected_return=.02,
             ai_provider="groq", ai_model="configured-model", source="forward_observation",
             ai_created_at=(close - pd.Timedelta(minutes=14, seconds=50)).isoformat(),
             ai_response=dict(symbol="BTC/USD", recommendation=recommendation, direction_bias="long",
@@ -84,6 +85,17 @@ def test_mixed_quant_models_and_duplicate_observations_are_not_silently_selected
     data.append(data[0])
     with pytest.raises(ValueError, match="Duplicate"):
         evaluate_strategies(frame, data, INSTRUMENTS["BTC/USD"], settings)
+
+
+def test_replay_excludes_observations_from_a_different_holding_horizon(settings):
+    frame = history()
+    data = observations(frame)
+    data[-1]["quant_horizon_bars"] = 48
+
+    report = evaluate_strategies(frame, data, INSTRUMENTS["BTC/USD"], settings)
+
+    assert report["holding_horizon_bars"] == 4
+    assert report["excluded"]["different_or_missing_quant_horizon"] == 1
 
 
 def test_failed_candidate_is_never_approved_and_report_cannot_change_bindings(settings):

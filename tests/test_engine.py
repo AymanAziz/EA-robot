@@ -75,6 +75,22 @@ def test_analysis_executes_persistent_local_paper_fill_once_per_candle(settings,
         assert len(orders) == 1 and orders[0].status == "filled"
 
 
+def test_runtime_holding_expiry_matches_the_configured_strategy_horizon(settings, db):
+    now = analysis_time()
+    only_btc(db)
+    settings = settings.model_copy(update={"holding_horizon_bars": 48})
+    engine, broker = local_engine(settings, db, now)
+    assert engine.run_once(now)["status"] == "success"
+    assert len(broker.get_positions()) == 1
+
+    _, after_one_hour = local_engine(settings, db, now + timedelta(hours=1))
+    assert len(after_one_hour.get_positions()) == 1
+
+    _, after_twelve_hours = local_engine(settings, db, now + timedelta(hours=12))
+    assert after_twelve_hours.get_positions() == []
+    assert len(after_twelve_hours.get_fills()) == 2
+
+
 def test_kill_switch_flattens_local_positions_and_blocks_new_entries(settings, db):
     now = analysis_time()
     only_btc(db)

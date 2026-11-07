@@ -1,18 +1,18 @@
 # Streamlit Community Cloud dashboard
 
-The existing dashboard can run on Streamlit Community Cloud while the engine, FastAPI backend, broker integrations, AI provider credentials, model artifacts and SQLite database stay on the Oracle VM. This keeps trading independent of the MacBook and of visits to the dashboard.
+The existing dashboard can run on Streamlit Community Cloud while the engine, FastAPI backend, broker integrations, AI provider credentials, model artifacts and SQLite database stay on one persistent backend host. The backend can be an Oracle VM or an always-on computer published through Tailscale Funnel. The latter avoids a payment card but depends on that computer, its power and its Internet connection.
 
 Community Cloud is a dashboard host here. Its apps [sleep after twelve hours without traffic](https://docs.streamlit.io/deploy/streamlit-community-cloud/manage-your-app), and its local filesystem [does not guarantee durable storage](https://docs.streamlit.io/develop/concepts/connections/connecting-to-data). The engineering consequence is that a continuously operating trading scheduler and its authoritative ledger belong on the VM. Waking, rebooting or redeploying the dashboard must not create orders or reset trading state.
 
-## Prepare the Oracle backend
+## Prepare the backend
 
-Install/update the existing application with [DEPLOYMENT.md](../DEPLOYMENT.md), apply migrations and run the API plus engine/protection timers. The VM requires no GPU or local large language model. Keep broker keys and Groq/Hermes keys only in the VM's protected `.env` file.
+For Oracle, install/update the application with [DEPLOYMENT.md](../DEPLOYMENT.md). For the current no-card macOS layout, use [TAILSCALE_MACOS.md](TAILSCALE_MACOS.md). Apply migrations and keep the API, scheduler and independent protection monitor supervised. Neither layout requires a GPU or local large language model. Keep broker and AI keys only in the backend's protected `.env` file.
 
-Expose FastAPI through an HTTPS reverse proxy on a public hostname such as `https://api.your-domain.example`, with a valid certificate. The URL is an example to replace, not a deployed endpoint. The API stays bound to loopback behind the proxy; allow public HTTPS rather than exposing port 8000. Preserve authentication on `/auth/login`, `/status`, `/tables/*` and `/controls`. Liveness `/healthz` is not proof that the scheduler is ready; `/readyz` must reflect current engine observations.
+Expose FastAPI through the supplied constrained reverse proxy and a valid public HTTPS origin. Oracle can use Caddy and a controlled DNS hostname; the no-card layout uses a stable Tailscale Funnel `*.ts.net` hostname. FastAPI stays bound to loopback behind the proxy, and raw port 8000 remains private. Preserve authentication on `/auth/login`, `/status`, `/tables/*` and `/controls`. Liveness `/healthz` is not proof that the scheduler is ready; `/readyz` must reflect current engine observations.
 
 The Community Cloud server makes HTTPS requests to this API; browser CORS access is unnecessary. Do not add a wildcard CORS bypass or put an administrator machine token in the public app. Community Cloud outbound IPs may change, so any network allowlist must follow the [current Streamlit environment documentation](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/file-organization).
 
-Confirm the VM can remain running with the laptop switched off. Preserve the dedicated minute monitor, reconciliation, backups and external downtime heartbeat. If no Oracle resources or public HTTPS endpoint are available, this preparation is incomplete; the cloud dashboard will show configuration/unavailable status and cannot replace the VM.
+Confirm the backend can remain running for the intended operating period. In the Tailscale Mac layout, keep the Mac logged in, connected to AC, awake with its lid open, and online. Preserve the dedicated minute monitor, reconciliation, backups and external downtime heartbeat. Without a running backend and public HTTPS endpoint, the cloud dashboard will show unavailable status and cannot replace the backend.
 
 ## Deploy the frontend
 

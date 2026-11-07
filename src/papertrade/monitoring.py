@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import math
-from datetime import datetime
+from datetime import datetime, time, timedelta, timezone
 
 import numpy as np
-from sqlalchemy import select
+from sqlalchemy import case, func, select
 
 from papertrade.db import Database, aware
 from papertrade.domain import utcnow
@@ -12,37 +12,61 @@ from papertrade.models import (AIAnalysisRow, FillRow, Health, InstrumentRow, Mo
                                PortfolioSnapshot, PositionRow, Run, StrategyValidation)
 
 
-def performance(snapshots, fills):
-    if not snapshots:
+def _daily_closing_equities(session, first_at, last_at):
+    """Read one indexed closing snapshot per UTC day, without scanning minute rows."""
+    values = []
+    day = aware(first_at).date()
+    final_day = aware(last_at).date()
+    while day <= final_day:
+        start = datetime.combine(day, time.min, tzinfo=timezone.utc)
+        end = start + timedelta(days=1)
+        value = session.scalar(select(PortfolioSnapshot.equity)
+            .where(PortfolioSnapshot.timestamp >= start, PortfolioSnapshot.timestamp < end)
+            .order_by(PortfolioSnapshot.timestamp.desc(), PortfolioSnapshot.id.desc()).limit(1))
+        if value is not None:
+            values.append(value)
+        day += timedelta(days=1)
+    return np.asarray(values, dtype=float)
+
+
+def _stored_performance(session, last):
+    """Calculate status metrics without materializing minute snapshots or fill history."""
+    if last is None:
         return {}
-    values = np.asarray([s.equity for s in snapshots], dtype=float)
-    # Daily observations avoid annualizing one-minute monitoring samples as independent 15m returns.
-    daily = {}
-    for row in snapshots:
-        daily[aware(row.timestamp).date()] = row.equity
-    daily_values = np.asarray(list(daily.values()))
+    first_at, first_equity = session.execute(select(PortfolioSnapshot.timestamp, PortfolioSnapshot.equity)
+        .order_by(PortfolioSnapshot.id).limit(1)).one()
+    daily_values = _daily_closing_equities(session, first_at, last.timestamp)
     returns = np.diff(daily_values) / daily_values[:-1] if len(daily_values) > 1 else np.array([])
-    closed = [f for f in fills if f.side == "sell"]
-    pnl = [f.realized_pl for f in closed if f.realized_pl is not None]
-    wins, losses = sum(p for p in pnl if p > 0), -sum(p for p in pnl if p < 0)
     downside = returns[returns < 0]
     sharpe = float(returns.mean() / returns.std(ddof=1) * np.sqrt(365)) if len(returns) >= 20 and returns.std() > 0 else None
     sortino = float(returns.mean() / np.sqrt(np.mean(np.minimum(returns, 0) ** 2)) * np.sqrt(365)) if len(returns) >= 20 and len(downside) > 1 else None
-    by_market = {}
+
+    fill_count, fees_reported, provisional_fees = session.execute(select(
+        func.count(FillRow.id), func.coalesce(func.sum(FillRow.fee), 0.0),
+        func.coalesce(func.sum(case((FillRow.fees_final.is_(False), 1), else_=0)), 0))).one()
+    closed_count, pnl_count, positive_count, wins, losses = session.execute(select(
+        func.count(FillRow.id),
+        func.count(FillRow.realized_pl),
+        func.coalesce(func.sum(case((FillRow.realized_pl > 0, 1), else_=0)), 0),
+        func.coalesce(func.sum(case((FillRow.realized_pl > 0, FillRow.realized_pl), else_=0.0)), 0.0),
+        func.coalesce(func.sum(case((FillRow.realized_pl < 0, -FillRow.realized_pl), else_=0.0)), 0.0),
+    ).where(FillRow.side == "sell")).one()
     from papertrade.domain import INSTRUMENTS
-    for fill in closed:
-        market = INSTRUMENTS[fill.symbol].market if fill.symbol in INSTRUMENTS else "external"
-        if fill.realized_pl is not None:
-            by_market[market] = by_market.get(market, 0) + fill.realized_pl
-    return {"total_return": float(values[-1] / values[0] - 1) if values[0] else None,
-            "win_rate": sum(p > 0 for p in pnl) / len(pnl) if pnl else None,
+    by_market = {}
+    realized_by_symbol = session.execute(select(FillRow.symbol, func.sum(FillRow.realized_pl))
+        .where(FillRow.side == "sell", FillRow.realized_pl.is_not(None)).group_by(FillRow.symbol)).all()
+    for symbol, realized_pl in realized_by_symbol:
+        market = INSTRUMENTS[symbol].market if symbol in INSTRUMENTS else "external"
+        by_market[market] = by_market.get(market, 0) + realized_pl
+    return {"total_return": float(last.equity / first_equity - 1) if first_equity else None,
+            "win_rate": positive_count / pnl_count if pnl_count else None,
             "profit_factor": wins / losses if losses else None,
             "sharpe": sharpe if sharpe is None or math.isfinite(sharpe) else None,
             "sortino": sortino if sortino is None or math.isfinite(sortino) else None,
-            "max_drawdown": max(s.max_drawdown for s in snapshots),
-            "trade_count": len(closed), "fees_reported": sum(f.fee for f in fills),
-            "fees_final": all(f.fees_final for f in fills), "by_market": by_market,
-            "realized_pl_complete": all(f.realized_pl is not None for f in closed),
+            "max_drawdown": last.max_drawdown,
+            "trade_count": closed_count, "fees_reported": fees_reported,
+            "fees_final": not provisional_fees if fill_count else True, "by_market": by_market,
+            "realized_pl_complete": pnl_count == closed_count,
             "method": "Daily observed equity (20+ returns); FIFO net closed fill P/L; missing basis unavailable; fees may be provisional"}
 
 
@@ -51,14 +75,13 @@ def system_status(db: Database, now: datetime | None = None):
     with db.session() as session:
         health = list(session.scalars(select(Health)))
         runs = session.scalars(select(Run).where(Run.status == "success").order_by(Run.id.desc())).first()
-        snapshots = list(session.scalars(select(PortfolioSnapshot).order_by(PortfolioSnapshot.id)))
+        last = session.scalar(select(PortfolioSnapshot).order_by(PortfolioSnapshot.id.desc()).limit(1))
         positions = list(session.scalars(select(PositionRow).where(PositionRow.closed_at.is_(None))))
-        fills = list(session.scalars(select(FillRow)))
+        metrics = _stored_performance(session, last)
         models = list(session.scalars(select(ModelVersion)))
         instruments = list(session.scalars(select(InstrumentRow).where(InstrumentRow.enabled.is_(True))))
         latest_ai = session.scalar(select(AIAnalysisRow).where(AIAnalysisRow.status == "valid").order_by(AIAnalysisRow.id.desc()))
         validations = session.scalars(select(StrategyValidation).order_by(StrategyValidation.id.desc()).limit(50)).all()
-    last = snapshots[-1] if snapshots else None
     def recent(row, age):
         return 0 <= (now - aware(row.timestamp)).total_seconds() <= age
     brokers = [h for h in health if h.name.startswith("broker:")]
@@ -104,7 +127,7 @@ def system_status(db: Database, now: datetime | None = None):
             "open_positions": len(positions),
             "brokers": {h.name: {"status": h.status, "detail": h.detail, "timestamp": aware(h.timestamp).isoformat()} for h in brokers},
             "models": [{"symbol": m.symbol, "version": m.version, "accepted": m.accepted, "active": m.active} for m in models],
-            "metrics": performance(snapshots, fills),
+            "metrics": metrics,
             "last_reconciliation": aware(reconcile_health.timestamp).isoformat() if reconcile_health and reconcile_health.status == "ok" else None,
             "ai": {"provider": db.settings.ai_provider, "model": model_for(db.settings) or None,
                    "enabled": db.settings.ai_enabled, "configuration_status": "disabled" if ai_reason else "configured_not_certified",

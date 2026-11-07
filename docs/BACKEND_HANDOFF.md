@@ -55,3 +55,21 @@ dashboard_refresh_seconds = 30
 Keep Groq, Hermes, Alpaca and OANDA credentials on the VM. Use [AI_SETUP.md](AI_SETUP.md) to verify account plans and select available AI models. Provider credentials and accepted/promoted models still need real verification; a successful bootstrap does not establish a trading edge or authorize paid/live use.
 
 The helper tests mock SSH and rsync. No actual remote deployment, TLS provisioning or provider connection was performed while adding it.
+
+## Local follow-up verification — 2026-11-05
+
+The complete suite passed with **261 tests passed and five external integration tests skipped**. Ruff passed for `src`, `tests`, `scripts` and `cloud_dashboard`; `pip check`, `alembic check` and the installer shell syntax check also passed. The local API and dashboard health endpoints returned HTTP 200, authenticated status returned 200, and unauthenticated status returned 401.
+
+The running Mac exposed an operational limitation: `/readyz` returned 503 after sleep interrupted multiple quarter-hour analyses. macOS power logs confirmed sleep across those scheduled times, and APScheduler logged missed execution deadlines. The independent monitor resumed after wake. A manual analysis late in the interval rejected stale candles, as required by the existing freshness limit. Do not increase that limit or replay missed trading opportunities to hide a sleeping host; verify recovery on the next scheduled cycle and use the server deployment for laptop-independent operation.
+
+Recovery was verified without a code or configuration change: the scheduled **14:00:20 UTC** analysis completed successfully, and `/readyz` returned **200** at 14:00:29 UTC with `online: true` and zero open positions. Before/after HTTP evidence is saved locally in Git-ignored `var/verification/backend-handoff-local-check.json`.
+
+No Oracle SSH target or public API hostname was available in the project configuration or local SSH aliases. Provider credentials were also absent. Cloud deployment and provider verification remain outstanding. The local environment remains paper simulator mode with AI and strategy execution disabled.
+
+## No-card backend selected — 2026-11-05
+
+The operator declined Oracle because signup required a payment card and selected the no-card macOS/Tailscale layout documented in [TAILSCALE_MACOS.md](TAILSCALE_MACOS.md). Tailscale 1.104.5 is connected on the direct-download macOS variant. Funnel publishes a stable `*.ts.net` HTTPS origin through loopback Caddy; raw FastAPI remains bound to `127.0.0.1:8000`.
+
+The API, scheduler, Caddy proxy, AC-power sleep assertion and verified daily backup are supervised by per-user LaunchAgents. The daily backup keeps seven verified generations and bounded launchd logs; before the handoff, a separate verified SQLite backup was created under `var/pre-tailscale-backups/`. Local and public checks observed health/readiness 200, unauthenticated status 401, blocked OpenAPI 404, wrong-method 404 and oversized-body 413. Authenticated login/status succeeded, with zero positions and strategy execution still disabled.
+
+This removes the cloud payment-card requirement but does not make the laptop independent. Operation stops during logout, reboot before login, closed-lid sleep, power/Internet loss or a Tailscale outage. Keep the Mac connected to AC, logged in, awake with its lid open and online.

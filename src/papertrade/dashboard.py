@@ -55,7 +55,7 @@ def validated_backend_url(value: str, *, require_https: bool = False) -> str:
 
 
 class DashboardSettings(BaseModel):
-    """Community Cloud only knows a backend URL; trading and AI secrets stay on the VM."""
+    """Community Cloud only knows a URL; trading and AI secrets stay on the persistent backend host."""
     model_config = ConfigDict(extra="forbid", frozen=True)
     api_url: str
     dashboard_refresh_seconds: int = Field(30, ge=5, le=300)
@@ -345,7 +345,7 @@ def render_dashboard(settings: Settings) -> None:
                 render_strategy_comparison(settings, status)
             elif section == "System health":
                 st.caption("Backend observations determine engine health. This page reaching your browser "
-                           "does not establish Oracle, scheduler, broker or provider availability.")
+                           "does not establish backend-host, scheduler, broker or provider availability.")
                 system_health = status.get("system_health")
                 if system_health:
                     st.json(system_health)
@@ -520,10 +520,11 @@ def main(*, cloud: bool = False) -> None:
         validated_backend_url(settings.api_url, require_https=cloud)
     except (ValueError, KeyError, FileNotFoundError):
         st.error("Configure the public HTTPS backend URL in Community Cloud Secrets under [papertrade]. "
-                 "Trading and AI credentials belong on the Oracle VM.")
+                 "Trading and AI credentials belong on the persistent backend host. "
+                 "Do not add trading or AI credentials to Community Cloud.")
         st.stop()
     if cloud:
-        st.caption("Streamlit Community Cloud dashboard · engine and persistent trading state remain on Oracle")
+        st.caption("Streamlit Community Cloud dashboard · engine and persistent trading state remain on the backend host")
     if not st.session_state.get("auth_token"):
         login(settings)
     else:

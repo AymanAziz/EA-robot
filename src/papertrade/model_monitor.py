@@ -17,6 +17,7 @@ from sqlalchemy import select
 from papertrade.data import DataError, validate_candles
 from papertrade.db import Database, aware
 from papertrade.domain import INSTRUMENTS
+from papertrade.horizon import HorizonPolicy
 from papertrade.ml import make_labels
 from papertrade.models import ModelVersion, PredictionRow
 
@@ -60,8 +61,8 @@ def _reference(metadata):
 def monitor_predictions(db: Database, symbol: str, candles: pd.DataFrame, now: datetime) -> dict:
     """Score up to500 recent, genuinely recorded out-of-sample forecasts per model.
 
-    A label needs the next open through the open four bars after entry; all these
-    observations must be from completed, validated candles. Training/evaluation
+    A label needs the next open through the model's recorded holding horizon; all
+    these observations must be from completed, validated candles. Training/evaluation
     history, forecasts recorded after the outcome, unknown model metadata, invalid
     probabilities and missing future horizons are excluded. Callers supply the
     available observation window; repeated calls do not accumulate duplicated scores.
@@ -80,7 +81,7 @@ def monitor_predictions(db: Database, symbol: str, candles: pd.DataFrame, now: d
         return result
     result["data_timestamp"] = frame.index[-1].isoformat()
     result["window_start"] = frame.index[0].isoformat()
-    labels = make_labels(frame, horizon=4)
+    labels_by_horizon = {}
     with db.session() as session:
         versions = {row.version: row for row in session.scalars(select(ModelVersion).where(ModelVersion.symbol == symbol))}
         rows = session.scalars(select(PredictionRow).where(
@@ -97,6 +98,14 @@ def monitor_predictions(db: Database, symbol: str, candles: pd.DataFrame, now: d
             continue
         observations.setdefault(prediction.model_version, [])
         metadata = version.metrics if isinstance(version.metrics, dict) else {}
+        horizon = metadata.get("horizon")
+        if (isinstance(horizon, bool) or not isinstance(horizon, int)
+                or not 1 <= horizon <= 96):
+            excluded["model_horizon_invalid"] += 1
+            continue
+        if horizon not in labels_by_horizon:
+            labels_by_horizon[horizon] = make_labels(frame, horizon=horizon)
+        labels = labels_by_horizon[horizon]
         trained_at = _timestamp(metadata.get("trained_at"))
         cutoff = _cutoff(metadata)
         stamp = pd.Timestamp(aware(prediction.candle_at))
@@ -110,7 +119,7 @@ def monitor_predictions(db: Database, symbol: str, candles: pd.DataFrame, now: d
         if created_at < stamp + pd.Timedelta(minutes=15) or created_at > pd.Timestamp(now):
             excluded["prediction_recording_time_invalid"] += 1
             continue
-        if created_at >= stamp + pd.Timedelta(minutes=75):
+        if created_at >= stamp + pd.Timedelta(HorizonPolicy(horizon).outcome_delta):
             excluded["prediction_recorded_after_outcome"] += 1
             continue
         probability = prediction.probability

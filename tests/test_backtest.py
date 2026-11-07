@@ -1,6 +1,8 @@
 import pandas as pd
+import pytest
 
 from papertrade.backtest import run_backtest
+from papertrade.config import Settings
 from papertrade.domain import INSTRUMENTS
 
 
@@ -84,17 +86,40 @@ def test_risk_exposure_setting_is_used_by_backtest_sizing():
     from papertrade.config import Settings
     frame = price_history()
     result = execute(frame, pd.Series(.99, index=frame.index), INSTRUMENTS["BTC/USD"],
-                     settings=Settings(max_instrument_exposure=.01))
+                     settings=Settings(_env_file=None, max_instrument_exposure=.01))
     trade = result["trades"][0]
     assert trade["entry_price"] * trade["qty"] <= 100
 
 
-def test_no_new_position_when_holding_horizon_crosses_known_session_close():
+def test_backtest_holding_period_comes_from_the_strategy_policy():
+    frame = price_history(120)
+    result = execute(frame, pd.Series(.99, index=frame.index), INSTRUMENTS["BTC/USD"],
+                     settings=Settings(_env_file=None, holding_horizon_bars=48))
+    first = result["trades"][0]
+
+    assert pd.Timestamp(first["exit_time"]) - pd.Timestamp(first["entry_time"]) == pd.Timedelta(hours=12)
+    assert result["assumptions"]["horizon_bars"] == 48
+
+
+def test_backtest_rejects_a_horizon_that_conflicts_with_the_strategy_policy():
+    frame = price_history(120)
+
+    with pytest.raises(ValueError, match="holding horizon conflicts"):
+        execute(frame, pd.Series(.99, index=frame.index), INSTRUMENTS["BTC/USD"], horizon=4,
+                settings=Settings(_env_file=None, holding_horizon_bars=48))
+
+
+def test_twelve_hour_crypto_policy_denies_equity_and_forex_entries():
     index = pd.date_range("2025-11-03T14:30:00Z", periods=26, freq="15min").append(
         pd.date_range("2025-11-04T14:30:00Z", periods=26, freq="15min"))
     frame = price_history(52)
     frame.index = index
-    result = execute(frame, pd.Series(.99, index=frame.index), INSTRUMENTS["SPY"])
-    # Feature warmup completes late in the second session; none of those late
-    # decisions has the full validated holding period available before close.
-    assert result["metrics"]["trade_count"] == 0
+    settings = Settings(_env_file=None, holding_horizon_bars=48)
+    equity = execute(frame, pd.Series(.99, index=frame.index), INSTRUMENTS["SPY"], settings=settings)
+
+    forex = price_history(120)
+    forex.index = pd.date_range("2025-01-06T00:00:00Z", periods=len(forex), freq="15min")
+    forex_result = execute(forex, pd.Series(.99, index=forex.index), INSTRUMENTS["EUR/USD"], settings=settings)
+
+    assert equity["metrics"]["trade_count"] == 0
+    assert forex_result["metrics"]["trade_count"] == 0

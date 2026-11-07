@@ -23,6 +23,7 @@ from papertrade.data import validate_candles
 from papertrade.decisions import decide
 from papertrade.domain import Instrument, Quote, utcnow
 from papertrade.features import build_features, feature_regime
+from papertrade.horizon import HorizonPolicy
 
 
 def _digest(value):
@@ -72,6 +73,9 @@ def _bootstrap_lower(trades):
 def evaluate_strategies(candles: pd.DataFrame, observations: list[dict], instrument: Instrument,
                         settings: Settings, *, now: datetime | None = None) -> dict:
     now = now or utcnow()
+    holding = HorizonPolicy(settings.holding_horizon_bars)
+    horizon = holding.bars
+    outcome_delta = pd.Timedelta(holding.outcome_delta)
     frame = validate_candles(candles, now, instrument.market)
     features = build_features(frame)
     usable, excluded = [], Counter()
@@ -91,6 +95,9 @@ def evaluate_strategies(candles: pd.DataFrame, observations: list[dict], instrum
             if item.get("quant_model_accepted") is not True or not .5 <= threshold <= 1:
                 excluded["training_or_missing_quant_provenance"] += 1
                 continue
+            if item.get("quant_horizon_bars") != horizon:
+                excluded["different_or_missing_quant_horizon"] += 1
+                continue
             venue = "local_simulator" if settings.execution == "simulator" else "broker_paper"
             if item.get("execution_venue") != venue:
                 excluded["different_or_missing_execution_venue"] += 1
@@ -103,7 +110,7 @@ def evaluate_strategies(candles: pd.DataFrame, observations: list[dict], instrum
             if not close <= decision <= close + timedelta(seconds=60) or decision > now:
                 excluded["late_or_hindsight_quant_observation"] += 1
                 continue
-            outcome = candle + pd.Timedelta(minutes=75)
+            outcome = candle + outcome_delta
             if candle not in frame.index or outcome not in frame.index or outcome > frame.index[-1]:
                 excluded["missing_or_unmatured_outcome"] += 1
                 continue
@@ -112,7 +119,8 @@ def evaluate_strategies(candles: pd.DataFrame, observations: list[dict], instrum
                 excluded["invalid_quant_prediction"] += 1
                 continue
             usable.append(dict(item, candle_at=candle, decision_at=decision, quant_model_version=model,
-                               probability=probability, expected_return=expected, quant_threshold=threshold))
+                               probability=probability, expected_return=expected, quant_threshold=threshold,
+                               quant_horizon_bars=horizon))
         except (ValueError, TypeError, KeyError, OverflowError):
             excluded["training_or_missing_quant_provenance"] += 1
     usable.sort(key=lambda item: item["candle_at"])
@@ -166,12 +174,12 @@ def evaluate_strategies(candles: pd.DataFrame, observations: list[dict], instrum
             ai_counts[name] += int(agrees)
             variant.loc[stamp] = probability if agrees or reducing else np.nan
     cut = usable[int(len(usable) * .6)]["candle_at"]
-    validation_rows = [row for row in usable if row["candle_at"] + pd.Timedelta(minutes=75) < cut]
+    validation_rows = [row for row in usable if row["candle_at"] + outcome_delta < cut]
     test_rows = [row for row in usable if row["candle_at"] >= cut]
     if len(validation_rows) < 2 or len(test_rows) < 2:
         raise ValueError("Insufficient nonoverlapping chronological validation/test partitions")
-    partitions = {"validation": (validation_rows[0]["candle_at"], validation_rows[-1]["candle_at"] + pd.Timedelta(minutes=75)),
-                  "test": (test_rows[0]["candle_at"], test_rows[-1]["candle_at"] + pd.Timedelta(minutes=75))}
+    partitions = {"validation": (validation_rows[0]["candle_at"], validation_rows[-1]["candle_at"] + outcome_delta),
+                  "test": (test_rows[0]["candle_at"], test_rows[-1]["candle_at"] + outcome_delta)}
     all_probabilities = {"quant_only": probabilities, **variant_probabilities}
     # The rule benchmark has the identical decision-observation grid.
     rule = pd.Series(np.where((features.sma20_gap > 0) & (features.return_4 > 0) &
@@ -225,7 +233,7 @@ def evaluate_strategies(candles: pd.DataFrame, observations: list[dict], instrum
     return {"schema_version": 1, "source": "forward_replay", "symbol": instrument.symbol,
             "source_label": "Replay of timestamped forward observations with estimated fills; not actual broker-paper results",
             "quant_model_version": next(iter(models)), "ai_provider": provider, "ai_model": ai_model,
-            "quant_threshold": threshold,
+            "quant_threshold": threshold, "holding_horizon_bars": horizon,
             "execution_venue_observed": "local_simulator" if settings.execution == "simulator" else "broker_paper", "observations": len(usable),
             "ai_usable_observations": dict(ai_counts), "excluded": dict(excluded),
             "observations_sha256": observations_digest, "policy_sha256": policy["sha256"],

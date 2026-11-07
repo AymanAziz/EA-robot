@@ -16,6 +16,7 @@ from papertrade.data import validate_candles
 from papertrade.decisions import decide
 from papertrade.domain import Instrument, Quote, utcnow
 from papertrade.features import build_features, feature_regime
+from papertrade.horizon import HorizonPolicy
 from papertrade.risk import Portfolio, RiskContext, approve_entry
 
 
@@ -50,17 +51,21 @@ def performance_metrics(equity: pd.Series, trades: list[dict], turnover: float =
 
 def run_backtest(candles: pd.DataFrame, probabilities: pd.Series, instrument: Instrument,
                  threshold: float = .6, expected_returns: pd.Series | None = None,
-                 horizon: int = 4, initial_cash: float = 10000,
+                 horizon: int | None = None, initial_cash: float = 10000,
                  spread_bps: float | None = None, min_edge_bps: float = 5,
                  start: pd.Timestamp | None = None, end: pd.Timestamp | None = None,
                  risk_per_trade: float = .005, daily_loss_limit: float = .02,
                  max_drawdown: float = .10, now=None, settings: Settings | None = None) -> dict:
-    if not 0.5 <= threshold <= 1 or horizon < 1 or initial_cash <= 0:
+    if not 0.5 <= threshold <= 1 or initial_cash <= 0:
         raise ValueError("Invalid backtest configuration")
     frame = validate_candles(candles, now or utcnow(), instrument.market)
     policy = settings or Settings(_env_file=None, capital=initial_cash, risk_per_trade=risk_per_trade,
                                   daily_loss_limit=daily_loss_limit, max_drawdown=max_drawdown,
                                   min_net_edge_bps=min_edge_bps)
+    holding = HorizonPolicy(policy.holding_horizon_bars)
+    if horizon is not None and horizon != holding.bars:
+        raise ValueError("Backtest holding horizon conflicts with the strategy policy")
+    horizon = holding.bars
     decision_policy = policy.model_copy(update={"min_probability": max(policy.min_probability, threshold)})
     if not isinstance(frame.index, pd.DatetimeIndex) or frame.index.tz is None or frame.index.has_duplicates:
         raise ValueError("Unique timezone-aware candles required")
@@ -145,8 +150,9 @@ def run_backtest(candles: pd.DataFrame, probabilities: pd.Series, instrument: In
             portfolio = Portfolio(equity_open, cash, daily_start, peak, [], reconciled=True)
             context = RiskContext(stamp.to_pydatetime(), previous.to_pydatetime(), quote, True, True, True,
                                   float(frame.volume.iloc[i - 1]), float(feature.atr), daily_circuit=daily_latched,
-                                  session_remaining_ok=is_market_open(instrument.market,
-                                      (stamp + pd.Timedelta(minutes=15 * horizon)).to_pydatetime()))
+                                  session_remaining_ok=(holding.permits_market(instrument.market)
+                                      and is_market_open(instrument.market,
+                                          (stamp + holding.hold_delta).to_pydatetime())))
             approval = approve_entry(instrument, portfolio, context, policy)
             if approval.approved:
                 raw_price = float(bar.open)

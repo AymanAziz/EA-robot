@@ -36,16 +36,18 @@ def strategy_policy(settings: Settings) -> dict:
     """Non-secret policy fingerprint; upgrades invalidate approval, never old quant artifacts."""
     root = Path(__file__).resolve().parents[1]
     sources = ("ai/fusion.py", "ai/evaluation.py", "ai/schema.py", "ai/providers.py", "ai/service.py",
-               "decisions.py", "risk.py", "features.py", "backtest.py", "calendars.py", "ml.py", "data.py")
+               "decisions.py", "risk.py", "features.py", "backtest.py", "calendars.py", "ml.py", "data.py",
+               "engine.py", "horizon.py")
     keys = ("execution", "capital", "risk_per_trade", "daily_loss_limit", "max_drawdown", "max_positions",
             "max_total_exposure", "max_instrument_exposure", "max_correlated_exposure", "min_probability",
-            "min_net_edge_bps", "max_data_age_seconds", "max_quote_age_seconds", "allow_unhosted_protection",
+            "min_net_edge_bps", "max_data_age_seconds", "max_quote_age_seconds", "holding_horizon_bars",
+            "allow_unhosted_protection",
             "ai_max_age_minutes", "ai_analysis_interval_minutes", "ai_recent_candles",
             "ai_event_probability_delta", "ai_event_price_change", "ai_event_min_interval_minutes",
             "ai_response_format", "ai_max_output_tokens", "ai_max_attempts", "ai_timeout_seconds",
             "ai_max_daily_requests", "ai_max_daily_tokens", "strategy_min_validation_trades",
             "strategy_min_observations", "strategy_certificate_max_age_days")
-    value = {"version": "ai_entry_veto_v1", "settings": {k: getattr(settings, k, None) for k in keys},
+    value = {"version": "ai_entry_veto_v2", "settings": {k: getattr(settings, k, None) for k in keys},
              "source_sha256": {name: hashlib.sha256((root / name).read_bytes()).hexdigest()
                                if (root / name).is_file() else "absent" for name in sources},
              "rules": {"ai_filtered_quant": "quant BUY and timely AI BUY/long, non-high risk, non-bearish regime",

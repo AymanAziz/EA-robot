@@ -51,7 +51,7 @@ Upstream pandas/NumPy/calendar and test-client deprecation warnings remain non-f
 
 No Groq/Hermes keys, eligible paper broker credentials, GitHub deployment repository, Oracle host or public HTTPS backend hostname were supplied. Consequently no AI inference calls, paid calls, external broker orders, GitHub push, Community Cloud publication, Oracle provisioning, TLS issuance or cloud-systemd execution was performed. Local processes still depend on this machine; the prepared Oracle backend deployment is what removes that dependency.
 
-Streamlit Community Cloud hosts **only the frontend**. Its app can sleep and its local storage is not durable; trading, model artifacts, budgets, SQLite, authentication and reconciliation stay on the Oracle VM. The cloud app stores only its public backend HTTPS URL and refresh interval, not broker keys, AI keys or the backend machine token.
+Streamlit Community Cloud hosts **only the frontend**. Its app can sleep and its local storage is not durable; trading, model artifacts, budgets, SQLite, authentication and reconciliation stay on one persistent backend host. That host can be an Oracle VM or the documented always-on Mac/Linux host published through Tailscale Funnel. The cloud app stores only its public backend HTTPS URL and refresh interval, not broker keys, AI keys or the backend machine token.
 
 ## Commands and configuration
 
@@ -80,11 +80,11 @@ papertrade approve-strategy VALIDATION_ID
 
 These are strategy/configuration approvals, not per-order approval prompts. To run locally, use separate terminals for `papertrade serve`, `papertrade dashboard` and `papertrade scheduler`. Stop entries and request liquidation with `papertrade control kill`, keeping monitoring active until confirmed closed.
 
-For laptop-independent operation, follow [DEPLOYMENT.md](../DEPLOYMENT.md) and enable the Oracle API plus engine/monitor/AI timers. Configure Caddy's HTTPS API hostname without exposing port 8000 publicly. In Community Cloud select **`cloud_dashboard/streamlit_app.py`**, Python **3.12**, and add only:
+For laptop-independent operation, follow [DEPLOYMENT.md](../DEPLOYMENT.md) and enable the Oracle API plus engine/monitor/AI timers. For the no-card Mac layout, follow [TAILSCALE_MACOS.md](TAILSCALE_MACOS.md) and accept its host-uptime limitation. Keep raw port 8000 private in either layout. In Community Cloud select **`cloud_dashboard/streamlit_app.py`**, Python **3.12**, and add only:
 
 ```toml
 [papertrade]
-api_url = "https://YOUR_ORACLE_API_HOSTNAME"
+api_url = "https://YOUR_PUBLIC_BACKEND_HOSTNAME"
 dashboard_refresh_seconds = 30
 ```
 

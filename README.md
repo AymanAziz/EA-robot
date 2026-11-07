@@ -4,7 +4,7 @@ A Python platform for measuring and automatically executing **paper-only** tradi
 
 Live trading is blocked by configuration and hardcoded paper broker endpoints. The default execution venue is a persistent local simulator using real market quotes. It is clearly separate from Alpaca Paper and OANDA Practice. No trained model, no validated edge, unavailable credentials or stale data means **NO TRADE**. Training never automatically activates a model.
 
-The cloud layout is **Streamlit Community Cloud for the dashboard, Oracle Always Free VM for the engine/API/SQLite and AI worker**. Community Cloud never holds broker or AI credentials, runs the scheduler, or owns trading history. See [Streamlit Cloud setup](docs/STREAMLIT_CLOUD.md). No large local language model or GPU is required.
+The frontend runs on **Streamlit Community Cloud** while one persistent backend host owns the engine, API, SQLite ledger and AI worker. The documented backends are an Oracle VM or a no-card, always-on Mac/Linux computer published through Tailscale Funnel. Community Cloud never holds broker or AI credentials, runs the scheduler, or owns trading history. See [Streamlit Cloud setup](docs/STREAMLIT_CLOUD.md) and [Tailscale macOS setup](docs/TAILSCALE_MACOS.md). No large local language model or GPU is required.
 
 The upgrade preserves existing data and paper execution. **Cloud AI and new strategy execution default OFF.** Explicitly enable an independently validated quant strategy before entries resume. AI-dependent execution additionally needs a current approved validation certificate; missing AI defaults to HOLD without switching providers. Protective exits and reconciliation continue independently.
 
@@ -130,7 +130,7 @@ papertrade control close_all
 papertrade status
 ```
 
-The dashboard exposes the same authenticated controls and market enable/disable controls. Pause blocks new entries while reconciliation and protection continue. Emergency stop is persistent and blocks entries. A persistent 60-minute maximum holding period also triggers an exit independently of the ML model. Close-all requests reductions; it does not claim liquidation until confirmed fills and positions are reconciled. Unknown submissions are queried by their original client ID and are never blindly retried.
+The dashboard exposes the same authenticated controls and market enable/disable controls. Pause blocks new entries while reconciliation and protection continue. Emergency stop is persistent and blocks entries. The validated model policy and runtime share one configured holding horizon; its durable expiry triggers an exit independently of model availability. Close-all requests reductions; it does not claim liquidation until confirmed fills and positions are reconciled. Unknown submissions are queried by their original client ID and are never blindly retried.
 
 For an ordinary safe shutdown, pause entries, close paper positions if desired, confirm orders/positions, then stop the scheduler. A process stop alone cannot cancel an already accepted broker order or guarantee an exit while a market/provider is unavailable. See the full incident runbook in [DEPLOYMENT.md](DEPLOYMENT.md).
 
@@ -159,7 +159,7 @@ These integration tests are read-only: they check real paper account state and c
 
 ## Server deployment and cost
 
-Run on Oracle Always Free ARM64 Ubuntu using [DEPLOYMENT.md](DEPLOYMENT.md), and host the frontend on [Streamlit Community Cloud](docs/STREAMLIT_CLOUD.md). The installer, hardened systemd services, 15-minute quant/AI-gate timers, independent minute monitor, Caddy HTTPS templates, optional Compose setup and SQLite backup tool are included. A paid AI subscription, GPU, Telegram, hosted database or premium data feed is not required by the default configuration. Optional paid access remains disabled.
+Run on Oracle Always Free ARM64 Ubuntu using [DEPLOYMENT.md](DEPLOYMENT.md), or use the [no-card Tailscale macOS backend](docs/TAILSCALE_MACOS.md), and host the frontend on [Streamlit Community Cloud](docs/STREAMLIT_CLOUD.md). The deployment files include process supervision, 15-minute quant/AI gates, independent minute monitoring, constrained HTTPS proxying and SQLite backups. A paid AI subscription, GPU, Telegram, hosted database or premium data feed is not required by the default configuration. Optional paid access remains disabled.
 
 RM0/month is a resource target, not a billing guarantee. Select resources marked Always Free in the home region, watch tenancy quotas, storage and network usage, and avoid paid upgrades/add-ons. Capacity can be unavailable and idle instances can be reclaimed. The current published [Oracle Always Free documentation](https://docs.oracle.com/en-us/iaas/Content/FreeTier/freetier_topic-Always_Free_Resources.htm) is the authority for allowances. An external heartbeat monitor detects loss of the entire host; an internal web page cannot do that.
 

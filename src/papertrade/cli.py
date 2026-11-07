@@ -120,7 +120,8 @@ def main():
                             value[key] = aware(item).isoformat()
                     metadata = models.get(row.model_version, {})
                     value.update(quant_data_end=metadata.get("data_end"), quant_trained_at=metadata.get("trained_at"),
-                                 quant_threshold=metadata.get("threshold"), quant_model_accepted=metadata.get("accepted"))
+                                 quant_threshold=metadata.get("threshold"), quant_model_accepted=metadata.get("accepted"),
+                                 quant_horizon_bars=metadata.get("horizon"))
                     observations.append(value)
                 report = evaluate_strategies(db.load_candles(args.symbol), observations, INSTRUMENTS[args.symbol], settings)
                 folder = settings.state_dir / "strategy_reports"
