@@ -63,7 +63,29 @@ def main():
     )
     weekly_gold.add_argument("--cache", required=True, help="private verified D1 history cache JSON path")
     weekly_gold.add_argument("--report", required=True, help="private deterministic evidence report JSON path")
+    stock_quality = commands.add_parser(
+        "stock-quality-target",
+        help="research-only developed-market profitability-quality target test",
+    )
+    stock_quality.add_argument(
+        "--cache", required=True, help="private verified Kenneth French history cache JSON path"
+    )
+    stock_quality.add_argument(
+        "--report", required=True, help="private deterministic evidence report JSON path"
+    )
     args = parser.parse_args()
+    if args.command == "stock-quality-target":
+        from papertrade.stock_quality import run_stock_quality_target_command
+
+        report = run_stock_quality_target_command(args.cache, args.report)
+        output({
+            "report": str(Path(args.report)),
+            "overall_status": report["overall_status"],
+            "test_a": report["test_a"]["status"],
+            "test_b": report["test_b"]["status"],
+            "warning": report["warning"],
+        })
+        return
     if args.command == "gold-weekly-target":
         from papertrade.gold_weekly import run_gold_weekly_target_command
 
