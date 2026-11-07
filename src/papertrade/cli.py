@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import argparse
 import getpass
+import hashlib
 import json
+import os
 import sys
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from sqlalchemy import select
@@ -51,7 +53,99 @@ def main():
     control = commands.add_parser("control")
     control.add_argument("action", choices=["pause", "resume", "kill", "close_all", "enable_market", "disable_market"])
     control.add_argument("--market", choices=["crypto", "equity", "forex"])
+    gold = commands.add_parser("gold-double-test", help="research-only XAU/USD historical double test")
+    gold.add_argument("--start", required=True, help="inclusive provider-clock date (YYYY-MM-DD)")
+    gold.add_argument("--end", required=True, help="inclusive provider-clock date (YYYY-MM-DD)")
+    gold.add_argument("--cache", required=True, help="private verified history cache JSON path")
+    gold.add_argument("--report", required=True, help="deterministic evidence report JSON path")
     args = parser.parse_args()
+    if args.command == "gold-double-test":
+        from papertrade.gold_research import (
+            SOURCE_ID,
+            AlgoSpecialGoldHistory,
+            GoldHistory,
+            prepare_gold_history,
+            run_gold_double_test,
+        )
+
+        start, end = date.fromisoformat(args.start), date.fromisoformat(args.end)
+        cache_path = Path(args.cache)
+        if cache_path.exists():
+            cached = json.loads(cache_path.read_text())
+            if (cached.get("source_id"), cached.get("start"), cached.get("end")) != (
+                SOURCE_ID, start.isoformat(), end.isoformat()
+            ):
+                raise ValueError("Gold cache source or requested date range does not match")
+            expected_chunks = []
+            cursor = start
+            while cursor <= end:
+                chunk_end = min(cursor + timedelta(days=19), end)
+                expected_chunks.append((cursor.isoformat(), chunk_end.isoformat()))
+                cursor = chunk_end + timedelta(days=1)
+            manifest = cached.get("manifest")
+            rows = cached.get("rows")
+            if not isinstance(manifest, list) or not isinstance(rows, list) or len(manifest) != len(expected_chunks):
+                raise ValueError("Gold cache manifest coverage is incomplete")
+            row_offset = 0
+            for item, (chunk_start, chunk_end) in zip(manifest, expected_chunks, strict=True):
+                expected = {
+                    "endpoint": "https://www.algospecial.com/api/ohlc.php",
+                    "request_start": chunk_start,
+                    "request_end": chunk_end,
+                    "symbol": "XAUUSD",
+                    "timeframe": "M15",
+                    "provider_clock": "broker server time; timezone unknown",
+                }
+                returned_rows = item.get("returned_rows")
+                if any(item.get(key) != value for key, value in expected.items()) or not isinstance(returned_rows, int):
+                    raise ValueError("Gold cache manifest coverage is invalid")
+                chunk_rows = rows[row_offset:row_offset + returned_rows]
+                lower, upper = date.fromisoformat(chunk_start), date.fromisoformat(chunk_end)
+                try:
+                    row_dates = [datetime.strptime(row["Timestamp"], "%Y.%m.%d %H:%M:%S").date()
+                                 for row in chunk_rows]
+                except (KeyError, TypeError, ValueError) as exc:
+                    raise ValueError("Gold cache row timestamp is invalid") from exc
+                if any(stamp < lower or stamp > upper for stamp in row_dates):
+                    raise ValueError("Gold cache row lies outside its manifest chunk")
+                payload = {"symbol": "XAUUSD", "timeframe": "M15", "from": chunk_start,
+                           "to": chunk_end, "rows": returned_rows, "data": chunk_rows}
+                response_sha256 = hashlib.sha256(json.dumps(
+                    payload, sort_keys=True, separators=(",", ":"), allow_nan=False
+                ).encode()).hexdigest()
+                if len(chunk_rows) != returned_rows or item.get("response_sha256") != response_sha256:
+                    raise ValueError("Gold cache response hash does not match its manifest")
+                row_offset += returned_rows
+            if row_offset != len(rows):
+                raise ValueError("Gold cache rows are not covered by its manifest")
+            cache_path.chmod(0o600)
+            history = GoldHistory(rows=tuple(cached["rows"]), manifest=tuple(cached["manifest"]))
+        else:
+            history = AlgoSpecialGoldHistory().fetch(start, end)
+            cached = {"source_id": SOURCE_ID, "start": start.isoformat(), "end": end.isoformat(),
+                      "rows": [dict(row) for row in history.rows],
+                      "manifest": [dict(item) for item in history.manifest]}
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
+            temporary = cache_path.with_suffix(cache_path.suffix + f".{os.getpid()}.tmp")
+            temporary.write_text(json.dumps(cached, sort_keys=True, separators=(",", ":"), allow_nan=False))
+            temporary.chmod(0o600)
+            os.replace(temporary, cache_path)
+        report = run_gold_double_test(prepare_gold_history(history))
+        report["requested_date_range"] = {"start": start.isoformat(), "end": end.isoformat()}
+        report_without_hash = dict(report)
+        report_without_hash.pop("report_sha256", None)
+        report["report_sha256"] = hashlib.sha256(json.dumps(
+            report_without_hash, sort_keys=True, separators=(",", ":"), allow_nan=False
+        ).encode()).hexdigest()
+        report_path = Path(args.report)
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = report_path.with_suffix(report_path.suffix + f".{os.getpid()}.tmp")
+        temporary.write_text(json.dumps(report, indent=2, sort_keys=True, allow_nan=False))
+        os.replace(temporary, report_path)
+        output({"report": str(report_path), "overall_status": report["overall_status"],
+                "test_a": report["test_a"]["status"], "test_b": report["test_b"]["status"],
+                "warning": report["warning"]})
+        return
     settings = Settings()
     configure_logging(settings)
     db = Database(settings)
@@ -102,7 +196,6 @@ def main():
             from papertrade.db import aware
             from papertrade.domain import utcnow
             from papertrade.models import AuditLog, ModelVersion, StrategyObservation, StrategyValidation
-            import hashlib
             if args.command == "compare-strategies":
                 with db.session() as session:
                     model_rows = session.scalars(select(ModelVersion).where(ModelVersion.symbol == args.symbol)).all()
