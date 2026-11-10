@@ -67,3 +67,14 @@ def test_corrected_baseline_replays_exactly_through_the_strategy_engine():
         assert actual.entry_ts.tolist() == draw.entry_ts.tolist()
         assert actual.exit_ts.tolist() == draw.exit_ts.tolist()
         np.testing.assert_allclose(actual.r_multiple, draw.r_multiple)
+
+
+def test_sampler_can_cross_disconnected_single_replacement_components():
+    pool = pd.DataFrame({"entry_index": [1, 1, 3, 3], "exit_index": [2, 2, 4, 4],
+                         "entry_day": [0]*4, "exit_day": [0]*4,
+                         "r_multiple": [1.]*4, "dir": ["BUY", "SELL", "BUY", "SELL"]})
+    trades, _ = sample_schedules(pool, initial_ids=[0, 3], draws=200, sweeps=20,
+                                 seed=7, daily_halt_r=-2)
+    buy_at_first_slot = trades.loc[trades.dir.eq("BUY"), "entry_index"].eq(1).mean()
+    # Exact conditional target is 1/2 for each of the two feasible schedules.
+    assert 0.35 < buy_at_first_slot < 0.65

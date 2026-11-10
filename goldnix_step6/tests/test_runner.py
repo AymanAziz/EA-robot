@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from goldnix_step6.runner import evaluate_study
+from goldnix_step6.runner import approval_verdict, evaluate_study
 
 
 def test_end_to_end_reports_failed_gates_and_all_era_metrics_without_retuning():
@@ -31,3 +31,9 @@ def test_end_to_end_reports_failed_gates_and_all_era_metrics_without_retuning():
     assert set(result["eras"]) == set("ABCD")
     assert len(baseline) == 48
     assert result["pooled"]["reference_break_even_win_rate"] == pytest.approx(0.3666666667)
+
+
+def test_numerical_pass_is_not_approval_when_sampler_has_a_warning():
+    assert approval_verdict("PASS", sampler_warning=True) == "PROVISIONAL_SAMPLER_WARNING"
+    assert approval_verdict("PASS", sampler_warning=False) == "PASS"
+    assert approval_verdict("FAIL", sampler_warning=True) == "FAIL"

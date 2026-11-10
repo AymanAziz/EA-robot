@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import subprocess
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -26,6 +27,15 @@ def source_manifest(root):
             files.append(root / name)
     return {p.relative_to(root).as_posix(): hashlib.sha256(p.read_bytes()).hexdigest()
             for p in sorted(files)}
+
+
+def assert_sources_committed(root, commit):
+    """Require the manifest to match committed blobs; unrelated workspace files are allowed."""
+    for relative, digest in source_manifest(root).items():
+        result = subprocess.run(["git", "show", f"{commit}:{relative}"], cwd=root,
+                                capture_output=True, check=False)
+        if result.returncode or hashlib.sha256(result.stdout).hexdigest() != digest:
+            raise RuntimeError(f"Uncommitted research source: {relative}")
 
 
 def freeze_run(root, run, *, verdict, code_commit, configs):

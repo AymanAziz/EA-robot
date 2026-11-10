@@ -7,6 +7,7 @@ baseline_draws: 200
 baseline_seed: 20261110
 baseline_sweeps: 20
 baseline_sampler: independent_metropolis_chains_uniform_feasible_schedules
+baseline_proposal_mix: fixed_80pct_single_15pct_pair_5pct_global
 bootstrap_resamples: 10000
 bootstrap_seed: 20261110
 monte_carlo_paths: 100000

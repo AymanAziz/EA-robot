@@ -32,9 +32,10 @@ def schedule_is_valid(outcomes: pd.DataFrame, *, daily_halt_r: float) -> bool:
 def sample_schedules(pool, *, initial_ids, draws, sweeps, seed, daily_halt_r):
     """Independent Metropolis chains, targeting uniform feasible fixed-count schedules.
 
-    A proposal replaces one uniformly chosen trade with a uniformly chosen
-    eligible candidate of the same direction. Symmetric proposals accept all
-    feasible changes. Each draw has its own seeded chain and returns its final
+    Proposals mix single replacement (80%), paired replacement (15%), and a
+    complete independent schedule (5%). All are symmetric; the complete draw
+    gives positive probability to every feasible schedule, connecting components
+    which a single replacement cannot reach. Each draw has its own seeded chain and returns its final
     schedule after the declared burn-in; finite mixing is an approximation,
     reported with midpoint/final means and initial-schedule retention.
     """
@@ -59,10 +60,19 @@ def sample_schedules(pool, *, initial_ids, draws, sweeps, seed, daily_halt_r):
         accepted = 0
         midpoint = None
         for move in range(moves):
-            slot = int(rng.integers(len(selected)))
             proposal = selected.copy()
-            candidates = pools[dirs[selected[slot]]]
-            proposal[slot] = candidates[rng.integers(len(candidates))]
+            kind = rng.random()
+            if kind < 0.05:
+                proposal = np.concatenate([
+                    rng.choice(candidates, size=int(np.sum(dirs[selected] == direction)), replace=False)
+                    for direction, candidates in pools.items()
+                ])
+            else:
+                slots = rng.choice(len(selected), size=min(2 if kind < 0.20 else 1, len(selected)),
+                                   replace=False)
+                for slot in slots:
+                    candidates = pools[dirs[selected[slot]]]
+                    proposal[slot] = candidates[rng.integers(len(candidates))]
             proposal = proposal[np.argsort(entries[proposal])]
             if _valid(entries[proposal], exits[proposal], entry_days[proposal],
                       exit_days[proposal], returns[proposal], daily_halt_r):

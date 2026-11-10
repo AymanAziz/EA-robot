@@ -15,21 +15,24 @@ open the holdout, change account equity, or authorise trading.
 - Sampling is uniform over **feasible fixed-count schedules**, not marginally
   uniform over every individual bar. Those are different distributions when
   trades overlap or halts apply. Independent seeded Metropolis chains target
-  the conditional schedule distribution: a uniformly selected slot is replaced
-  by a uniformly selected eligible bar of the same direction; infeasible changes
-  are rejected. The forward/reverse proposal probabilities match, hence feasible
-  schedules have equal stationary weights. The observed signal schedule is
+  the conditional schedule distribution. Proposals use single replacement (80%),
+  paired replacement (15%), or a complete independent schedule (5%). Replacements
+  preserve direction counts; infeasible changes are rejected. Global proposals
+  connect otherwise isolated feasible components. Forward/reverse proposal
+  probabilities match, hence feasible schedules have equal stationary weights.
+  The observed signal schedule is
   only an initial feasible state, not a privileged output candidate.
 - Each of 200 independent chains uses 20 full replacement sweeps. This finite
   burn-in is an approximation to the stationary distribution. Reported checks
   compare midpoint/final means and starting-schedule retention. They cannot
-  prove convergence or irreducibility. A sampler warning prevents interpreting
+  prove convergence. A sampler warning prevents interpreting
   a numerical PASS as validated approval. The original nine gate thresholds
   are unchanged; this warning concerns numerical reliability.
 - Signal and baseline use the same sampled calendar months for the edge
   bootstrap, with 10,000 resamples and one-sided 5% lower bounds. Empty calendar
-  months are retained. A full baseline draw is sampled per replicate to retain
-  uncertainty in random entry timing. Resamples containing zero signal or
+  months are retained. Each replicate also resamples the 200 baseline draw IDs
+  and averages their monthly-resampled means, targeting the declared mean random
+  baseline and its Monte Carlo uncertainty. Resamples containing zero signal or
   baseline baskets are rejected and counted explicitly.
 - Reference win rates average spread/stop ratios at trade level, which agrees
   with the trade-level mean R definition. They assume fixed stop/target outcomes
@@ -51,9 +54,10 @@ not introduced silently. This remains the original spread-based research test.
 
 Each study produces `metrics.json`, `verdict.md`, signal trades, compressed full
 baseline trades, draw summaries, sampler diagnostics, config/protocol copies,
-and `FROZEN.yaml`. A freeze is written for a completed failed verdict as well
+  and `FROZEN.yaml`. A freeze is written for a completed failed verdict as well
 as a completed pass. It records the code commit, source and artifact hashes,
 configuration and verdict. Verification checks hashes and refuses overwrites.
+Execution refuses research sources that differ from the recorded commit.
 All corrected and imported source files are included in the manifest. Old
 V1/V2 freezes are never overwritten. Strategy development on already examined
 data remains exploratory and cannot become independent validation by passing

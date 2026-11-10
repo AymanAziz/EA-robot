@@ -1,6 +1,6 @@
 import pytest
 
-from goldnix_step6.freeze import freeze_run, verify_run
+from goldnix_step6.freeze import assert_sources_committed, freeze_run, verify_run
 
 
 def test_failed_verdict_can_be_frozen_but_not_overwritten_and_detects_tampering(tmp_path):
@@ -29,3 +29,21 @@ def test_freeze_detects_modified_metrics(tmp_path):
     freeze_run(tmp_path, run, verdict="FAIL", code_commit="abc", configs={})
     metrics.write_text('{"verdict":"PASS"}\n')
     assert not verify_run(tmp_path, run)
+
+
+def test_report_cannot_attribute_uncommitted_code_to_head(tmp_path):
+    import subprocess
+    def git(*args):
+        return subprocess.check_output(["git", "-C", str(tmp_path), *args], text=True).strip()
+    git("init", "-q")
+    code = tmp_path / "goldnix_step6"
+    code.mkdir()
+    source = code / "example.py"
+    source.write_text("value = 1\n")
+    git("add", ".")
+    git("-c", "user.name=Test", "-c", "user.email=test@example.invalid", "commit", "-qm", "fixture")
+    commit = git("rev-parse", "HEAD")
+    assert_sources_committed(tmp_path, commit)
+    source.write_text("value = 2\n")
+    with pytest.raises(RuntimeError, match="Uncommitted"):
+        assert_sources_committed(tmp_path, commit)

@@ -27,15 +27,16 @@ def paired_month_bootstrap(signal, baseline, *, start, end, resamples, seed):
     rejected = 0
     while len(means) < resamples:
         sampled = rng.integers(len(months), size=len(months))
-        draw = int(rng.integers(len(by_draw)))
-        sn, bn = s_counts[sampled].sum(), b_counts[draw, sampled].sum()
-        if sn == 0 or bn == 0:
+        draws = rng.integers(len(by_draw), size=len(by_draw))
+        sn, bn = s_counts[sampled].sum(), b_counts[:, sampled].sum(axis=1)
+        if sn == 0 or np.any(bn[draws] == 0):
             rejected += 1
             if rejected > resamples * 100:
                 raise ValueError("Too few populated calendar blocks")
             continue
         sm = s_sums[sampled].sum() / sn
-        bm = b_sums[draw, sampled].sum() / bn
+        totals = b_sums[:, sampled].sum(axis=1)
+        bm = np.mean(totals[draws] / bn[draws])
         means.append(sm)
         edges.append(sm - bm)
     baseline_mean = np.mean(b_sums.sum(axis=1) / b_counts.sum(axis=1))

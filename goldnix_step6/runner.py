@@ -22,10 +22,17 @@ from sim.engine import prepare_bars, run_engine
 from goldnix_v2.signal import apply_v2_confirmation
 from goldnix_step6.baseline import run_baseline, schedule_is_valid
 from goldnix_step6.bootstrap import paired_month_bootstrap
-from goldnix_step6.freeze import freeze_run, source_manifest, verify_run
+from goldnix_step6.freeze import assert_sources_committed, freeze_run, source_manifest, verify_run
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_NAME = "xauusd_h1_20030505_20251231_bid_ask.csv"
+
+
+def approval_verdict(numerical_verdict, *, sampler_warning):
+    """Keep numerical gate results, but do not approve an unreliable simulation."""
+    if numerical_verdict == "PASS" and sampler_warning:
+        return "PROVISIONAL_SAMPLER_WARNING"
+    return numerical_verdict
 
 
 def _report(trades, bars, config, bootstrap):
@@ -122,12 +129,14 @@ def evaluate_study(eras, config, protocol, *, gaps, atr_parity):
         "max_fill_delta_pp": max(x["fill_delta_pp"] for x in reports.values()), "atr_parity": atr_parity,
     }
     verdict = evaluate_gates(inputs, load_yaml(ROOT / "goldnix/gates/rules.yaml"))
+    warning = any(x["sampler"]["mixing_warning"] for x in reports.values())
     return {
-        "evaluation_complete": True, "verdict": verdict.verdict, "gates": verdict.gates,
+        "evaluation_complete": True, "numerical_gate_verdict": verdict.verdict,
+        "verdict": approval_verdict(verdict.verdict, sampler_warning=warning), "gates": verdict.gates,
         "gate_inputs": inputs, "eras": reports, "pooled": pooled,
         "monte_carlo": {"p99_usd": risk.p99_max_drawdown_usd, "paths": risk.simulations,
                         "observed_rate_per_year": rate, "trades_per_year": risk.trades_per_year},
-        "sampler_has_warning": any(x["sampler"]["mixing_warning"] for x in reports.values()),
+        "sampler_has_warning": warning,
         "holdout_run": False,
     }, trades, baseline, diagnostics
 
@@ -138,6 +147,8 @@ def main():
     args = parser.parse_args()
     if not verify_freeze(ROOT / "goldnix"):
         raise RuntimeError("V1 freeze changed")
+    commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+    assert_sources_committed(ROOT, commit)
     protocol = load_yaml(ROOT / "goldnix_step6/protocol.yaml")
     config_path = ROOT / ("goldnix/params/decision.yaml" if args.study == "V1" else "goldnix_v2/decision.yaml")
     config = load_yaml(config_path)
@@ -199,7 +210,6 @@ def main():
               "Signal/baseline confidence bounds use identical sampled calendar months.",
               "Previous strategy trades reproduced exactly. No holdout was read."]
     (output / "verdict.md").write_text("\n".join(lines) + "\n")
-    commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     if manifest != source_manifest(ROOT):
         raise RuntimeError("Sources changed during evaluation; refusing freeze")
     freeze_run(ROOT, output, verdict=result["verdict"], code_commit=commit,
