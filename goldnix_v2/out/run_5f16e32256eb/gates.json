@@ -1,0 +1,62 @@
+{
+  "gates": {
+    "G1": {
+      "passed": false,
+      "rule": "> 0.0",
+      "value": -0.06163982062982586
+    },
+    "G2": {
+      "passed": true,
+      "rule": ">= 0.1",
+      "value": 0.11521769300269051
+    },
+    "G3": {
+      "passed": false,
+      "rule": "> 0.0",
+      "value": -0.008429833786242602
+    },
+    "G4": {
+      "passed": false,
+      "rule": ">= 3",
+      "value": 2
+    },
+    "G5": {
+      "passed": false,
+      "rule": ">= 1000",
+      "value": 677
+    },
+    "G6": {
+      "passed": true,
+      "rule": "<= 0.1",
+      "value": 0.0014771048744460858
+    },
+    "G7": {
+      "passed": false,
+      "rule": "<= 2.4",
+      "value": 90.67403571428618
+    },
+    "G8": {
+      "passed": true,
+      "rule": "<= 8.0",
+      "value": 1.4218009478672966
+    },
+    "G9": {
+      "passed": true,
+      "rule": "passed",
+      "value": true
+    }
+  },
+  "inputs": {
+    "account_usd": 20.0,
+    "atr_parity": true,
+    "baskets": 677,
+    "bootstrap_lower_bound": -0.06163982062982586,
+    "edge_lower_bound": -0.008429833786242602,
+    "gap_risk_share": 0.0014771048744460858,
+    "max_fill_delta_pp": 1.4218009478672966,
+    "mc_p99_drawdown_usd": 90.67403571428618,
+    "positive_eras": 2,
+    "signal_minus_baseline": 0.11521769300269051
+  },
+  "verdict": "INSUFFICIENT_DATA"
+}
