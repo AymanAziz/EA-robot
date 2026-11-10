@@ -1,0 +1,16 @@
+revision: execution_envelope_and_paired_months_1
+studies: [V1, V2]
+account_usd: 20.0
+lot_size: 0.01
+usd_per_price_unit: 1.0
+baseline_draws: 200
+baseline_seed: 20261110
+baseline_sweeps: 20
+baseline_sampler: independent_metropolis_chains_uniform_feasible_schedules
+bootstrap_resamples: 10000
+bootstrap_seed: 20261110
+monte_carlo_paths: 100000
+monte_carlo_seed: 20261111
+sampler_retention_excess_warning: 0.05
+sampler_midpoint_difference_se_warning: 3.0
+holdout_access: false
