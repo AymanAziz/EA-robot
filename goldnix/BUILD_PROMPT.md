@@ -26,11 +26,11 @@ Previous versions of this design failed three times in a row for the same reason
 | Item | Value |
 |---|---|
 | Instrument | XAUUSD, H1 bars |
-| In-sample data | `data/raw/<FILL IN file name>.csv`, 2005-06 → 2025-12, has bid and ask columns |
-| Holdout data | `data/holdout/<FILL IN>.csv`, 2026-01 → 2026-10. **Do not open it** until Step 7 allows it |
-| Account size for risk checks | `ACCOUNT_USD = <FILL IN>` |
+| In-sample data | `data/raw/xauusd_h1_20030505_20251231_bid_ask.csv`, trade window 2005-06 → 2025-12, has bid and ask columns |
+| Holdout data | Not available yet. **Do not add or open one** until Step 7 allows it |
+| Account size for risk checks | `ACCOUNT_USD = 20.00` (verified MetaQuotes-Demo balance on 2026-11-10) |
 | Lot size | 0.01 (broker minimum; 1.00 lot = 100 oz, so $1 move = $1 at 0.01 lot) |
-| Broker / platform | MT5, **hedging** account, `<FILL IN broker>`, server time zone `<FILL IN>` |
+| Broker / platform | MT5, **hedging** account, MetaQuotes-Demo (free parity substitute); EET/EEST, UTC+2 winter / UTC+3 summer using European DST rules |
 
 Eras (`data/eras.yaml`):
 
@@ -79,7 +79,11 @@ goldnix/
 - **Bar indexing:** the signal is evaluated on closed bar `t`; entry is at `open[t+1]`. No other offsets anywhere.
 - **Prices:**
   - Mid = (bid + ask) / 2.
+  - Entry spread = `ask_open - bid_open` of the entry bar.
+  - The volatility-ceiling check uses `ask_close - bid_close` of the signal bar.
   - A BUY fills at the ask; its stop and target are checked against the bid. A SELL is the mirror.
+  - Long exits check `bid_low` / `bid_high`; short exits check `ask_high` / `ask_low`.
+  - Never use `ask_high - bid_high` as a spread.
   - This charges **exactly one spread per round trip**. An added layer pays its own spread.
 - **R:**
   - 1R = the stop distance of a single-layer trade = 1.0 × ATR at entry, **excluding spread**.

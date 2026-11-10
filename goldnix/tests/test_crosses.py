@@ -1,6 +1,7 @@
 """Behaviour tests for closed-bar Aroon oscillator crossings."""
 
 import numpy as np
+import pytest
 
 from signals.crosses import BUY, NONE, SELL, cross_series
 
@@ -29,3 +30,14 @@ def test_no_signal_exists_before_two_valid_aroon_values():
 
     assert signals[:4].tolist() == [NONE, NONE, NONE, NONE]
     assert signals[4] == BUY
+
+
+def test_non_1d_oscillator_is_rejected():
+    with pytest.raises(ValueError, match="oscillator must be 1-D"):
+        cross_series([[40.0, 60.0]])
+
+
+@pytest.mark.parametrize("threshold", [0.0, -1.0])
+def test_non_positive_threshold_is_rejected(threshold):
+    with pytest.raises(ValueError, match="threshold must be greater than zero"):
+        cross_series([40.0, 60.0], threshold=threshold)

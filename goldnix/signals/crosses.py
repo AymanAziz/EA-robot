@@ -14,6 +14,10 @@ BUY = 1
 def cross_series(oscillator, threshold: float = THRESHOLD) -> np.ndarray:
     """Return signals aligned to the closed bar on which each cross occurs."""
     oscillator = np.asarray(oscillator, dtype=float)
+    if oscillator.ndim != 1:
+        raise ValueError("oscillator must be 1-D")
+    if threshold <= 0:
+        raise ValueError("threshold must be greater than zero")
     signals = np.full(oscillator.shape, NONE, dtype=np.int8)
     if oscillator.size < 2:
         return signals
