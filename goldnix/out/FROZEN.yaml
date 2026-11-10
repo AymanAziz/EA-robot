@@ -1,0 +1,25 @@
+decision_config:
+  aroon_period: 70
+  threshold: 50
+  ties: newest
+  volume_filter: none
+  vol_ceiling_atr: 0.3
+  news_filter: false
+  stop_atr: 1.0
+  target_atr: 2.0
+  min_distance_usd: 0.5
+  max_layers: 1
+  trailing: false
+  one_position: true
+  session_filter: none
+  friday_no_entry_from_utc: '19:00'
+  friday_flat_utc: '20:00'
+  daily_halt_r: -2.0
+  holiday_exclusion: true
+  fill_policy: stop_first
+  gap_policy: adverse_at_open_favourable_at_target
+decision_config_sha256: ee0658931947c9f61811da84bd48f9bed43308b9e322db3fc32f9b0e5aac63a1
+research_code_sha256: a68974e42e32ac28c14ea94955d394e7e48e90526495a305207212d2e9d376b9
+code_commit: 4ccdf9fb1048f15c145080f863e2b905ca8c71e1
+in_sample_verdict: NOT_TRADEABLE_AT_THIS_ACCOUNT_SIZE
+created_utc: '2026-11-10T03:09:39.684289+00:00'

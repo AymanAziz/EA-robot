@@ -1,0 +1,62 @@
+{
+  "gates": {
+    "G1": {
+      "passed": false,
+      "rule": "> 0.0",
+      "value": -0.09636744151287875
+    },
+    "G2": {
+      "passed": false,
+      "rule": ">= 0.1",
+      "value": 0.08413502537486331
+    },
+    "G3": {
+      "passed": true,
+      "rule": "> 0.0",
+      "value": 0.0030400055710425307
+    },
+    "G4": {
+      "passed": false,
+      "rule": ">= 3",
+      "value": 0
+    },
+    "G5": {
+      "passed": true,
+      "rule": ">= 1000",
+      "value": 1734
+    },
+    "G6": {
+      "passed": true,
+      "rule": "<= 0.1",
+      "value": 0.002306805074971165
+    },
+    "G7": {
+      "passed": false,
+      "rule": "<= 2.4",
+      "value": 160.21199642857096
+    },
+    "G8": {
+      "passed": true,
+      "rule": "<= 8.0",
+      "value": 1.5037593984962403
+    },
+    "G9": {
+      "passed": true,
+      "rule": "passed",
+      "value": true
+    }
+  },
+  "inputs": {
+    "account_usd": 20.0,
+    "atr_parity": true,
+    "baskets": 1734,
+    "bootstrap_lower_bound": -0.09636744151287875,
+    "edge_lower_bound": 0.0030400055710425307,
+    "gap_risk_share": 0.002306805074971165,
+    "max_fill_delta_pp": 1.5037593984962403,
+    "mc_p99_drawdown_usd": 160.21199642857096,
+    "positive_eras": 0,
+    "signal_minus_baseline": 0.08413502537486331
+  },
+  "verdict": "NOT_TRADEABLE_AT_THIS_ACCOUNT_SIZE"
+}

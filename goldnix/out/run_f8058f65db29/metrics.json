@@ -119,5 +119,167 @@
     "win_rate": 0.36505190311418684
   },
   "run_hash": "f8058f65db29",
-  "status": "STEP_4_DECISION_POINT_NO_GATE_VERDICT"
+  "status": "STEP_4_DECISION_POINT_NO_GATE_VERDICT",
+  "step6": {
+    "bootstrap_seed": 20261110,
+    "code_commit": "4ccdf9fb1048f15c145080f863e2b905ca8c71e1",
+    "era_reports": {
+      "A": {
+        "baskets": 528,
+        "bootstrap_lower_bound_5pct": -0.1925996785991936,
+        "bootstrap_se": 0.06840180305409724,
+        "break_even_win_rate": 0.38046843804773556,
+        "longest_losing_streak": 11,
+        "mean_atr_usd": 3.1858238636363634,
+        "mean_mae_r": -1.3116510769658563,
+        "mean_mfe_r": 1.247778940704605,
+        "mean_r": -0.0823359972641092,
+        "mean_spread_usd": 0.45049242424242436,
+        "mean_stop_usd": 3.1858238636363634,
+        "spread_paid_usd_0_01_lot": 237.86000000000007,
+        "time_in_market_share": 0.06872237692563166,
+        "win_rate": 0.3693181818181818,
+        "win_rate_for_plus_0_15r": 0.4304684380477355
+      },
+      "B": {
+        "baskets": 388,
+        "bootstrap_lower_bound_5pct": -0.11897046751820017,
+        "bootstrap_se": 0.07175336516558409,
+        "break_even_win_rate": 0.36440590499861003,
+        "longest_losing_streak": 10,
+        "mean_atr_usd": 3.742762334315167,
+        "mean_mae_r": -1.3463231366442494,
+        "mean_mfe_r": 1.358951266699499,
+        "mean_r": -0.002563911607016077,
+        "mean_spread_usd": 0.3488917525773193,
+        "mean_stop_usd": 3.742762334315167,
+        "spread_paid_usd_0_01_lot": 135.3699999999999,
+        "time_in_market_share": 0.07023633101942126,
+        "win_rate": 0.36855670103092786,
+        "win_rate_for_plus_0_15r": 0.41440590499861
+      },
+      "C": {
+        "baskets": 419,
+        "bootstrap_lower_bound_5pct": -0.1285734651408513,
+        "bootstrap_se": 0.07701872672044655,
+        "break_even_win_rate": 0.36606041035479453,
+        "longest_losing_streak": 16,
+        "mean_atr_usd": 3.1411396181384257,
+        "mean_mae_r": -1.3336339142917695,
+        "mean_mfe_r": 1.2893879065264016,
+        "mean_r": -0.0028945777821129835,
+        "mean_spread_usd": 0.3084009546539386,
+        "mean_stop_usd": 3.1411396181384257,
+        "spread_paid_usd_0_01_lot": 129.22000000000025,
+        "time_in_market_share": 0.06936964400636791,
+        "win_rate": 0.3723150357995227,
+        "win_rate_for_plus_0_15r": 0.4160604103547945
+      },
+      "D": {
+        "baskets": 399,
+        "bootstrap_lower_bound_5pct": -0.1625407326646825,
+        "bootstrap_se": 0.06423797537813479,
+        "break_even_win_rate": 0.3586149824486585,
+        "longest_losing_streak": 11,
+        "mean_atr_usd": 5.6291469745793,
+        "mean_mae_r": -1.339010194245855,
+        "mean_mfe_r": 1.3508605895489856,
+        "mean_r": -0.05826874686884447,
+        "mean_spread_usd": 0.42694235588972523,
+        "mean_stop_usd": 5.6291469745793,
+        "spread_paid_usd_0_01_lot": 170.35000000000036,
+        "time_in_market_share": 0.07248926022392856,
+        "win_rate": 0.3483709273182957,
+        "win_rate_for_plus_0_15r": 0.40861498244865846
+      }
+    },
+    "gate_inputs": {
+      "account_usd": 20.0,
+      "atr_parity": true,
+      "baskets": 1734,
+      "bootstrap_lower_bound": -0.09636744151287875,
+      "edge_lower_bound": 0.0030400055710425307,
+      "gap_risk_share": 0.002306805074971165,
+      "max_fill_delta_pp": 1.5037593984962403,
+      "mc_p99_drawdown_usd": 160.21199642857096,
+      "positive_eras": 0,
+      "signal_minus_baseline": 0.08413502537486331
+    },
+    "gates": {
+      "G1": {
+        "passed": false,
+        "rule": "> 0.0",
+        "value": -0.09636744151287875
+      },
+      "G2": {
+        "passed": false,
+        "rule": ">= 0.1",
+        "value": 0.08413502537486331
+      },
+      "G3": {
+        "passed": true,
+        "rule": "> 0.0",
+        "value": 0.0030400055710425307
+      },
+      "G4": {
+        "passed": false,
+        "rule": ">= 3",
+        "value": 0
+      },
+      "G5": {
+        "passed": true,
+        "rule": ">= 1000",
+        "value": 1734
+      },
+      "G6": {
+        "passed": true,
+        "rule": "<= 0.1",
+        "value": 0.002306805074971165
+      },
+      "G7": {
+        "passed": false,
+        "rule": "<= 2.4",
+        "value": 160.21199642857096
+      },
+      "G8": {
+        "passed": true,
+        "rule": "<= 8.0",
+        "value": 1.5037593984962403
+      },
+      "G9": {
+        "passed": true,
+        "rule": "passed",
+        "value": true
+      }
+    },
+    "monte_carlo_seed": 20261111,
+    "pooled_report": {
+      "account_drawdown_limit_usd": 2.4,
+      "baskets": 1734,
+      "bootstrap_lower_bound_5pct": -0.09636744151287875,
+      "bootstrap_resamples": 10000,
+      "bootstrap_se": 0.0356630674420359,
+      "break_even_win_rate": 0.366823595381514,
+      "longest_losing_streak": 16,
+      "mean_atr_usd": 3.8618650107101637,
+      "mean_mae_r": -1.3310166224038573,
+      "mean_mfe_r": 1.3064286506551583,
+      "mean_r": -0.039752169752218104,
+      "mean_spread_usd": 0.3880046136101503,
+      "mean_stop_usd": 3.8618650107101637,
+      "monte_carlo_p99_max_drawdown_usd": 160.21199642857096,
+      "monte_carlo_paths": 100000,
+      "monte_carlo_trades_per_year": 84,
+      "observed_trades_per_year": 84.23114837494111,
+      "signal_minus_baseline_lower_bound_5pct": 0.0030400055710425307,
+      "signal_minus_baseline_point": 0.08413502537486328,
+      "spread_paid_usd_0_01_lot": 672.8000000000006,
+      "time_in_market_share": 0.07008904424764473,
+      "win_rate": 0.36505190311418684,
+      "win_rate_for_plus_0_15r": 0.416823595381514
+    },
+    "research_code_sha256": "a68974e42e32ac28c14ea94955d394e7e48e90526495a305207212d2e9d376b9",
+    "status": "FROZEN",
+    "verdict": "NOT_TRADEABLE_AT_THIS_ACCOUNT_SIZE"
+  }
 }
