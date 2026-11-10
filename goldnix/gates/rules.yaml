@@ -1,0 +1,9 @@
+g1_bootstrap_lower_gt: 0.0
+g2_edge_point_min: 0.10
+g3_edge_lower_gt: 0.0
+g4_positive_eras_min: 3
+g5_baskets_min: 1000
+g6_gap_risk_share_max: 0.10
+g7_drawdown_account_share_max: 0.12
+g8_fill_delta_pp_max: 8.0
+g9_atr_parity_required: true
