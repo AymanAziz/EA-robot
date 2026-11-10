@@ -129,6 +129,15 @@ def run_engine(
             stop = anchor + distance
             target = anchor - reward_distance
             spread = anchor - entry
+        layers = 1
+        layer_entry = None
+        max_layers = int(config.get("max_layers", 1))
+        layer_distance = (
+            float(config.get("layer_atr", 0.5))
+            * distance
+            / float(config["stop_atr"])
+        )
+        layer_trigger = anchor - layer_distance if is_buy else anchor + layer_distance
 
         mae_r = 0.0
         mfe_r = 0.0
@@ -140,6 +149,53 @@ def run_engine(
                 and timestamp.hour * 60 + timestamp.minute
                 >= _minutes(config["friday_flat_utc"])
             )
+            market_open = float(bar["bid_open"] if is_buy else bar["ask_open"])
+            gap_beyond_stop = (is_buy and market_open < stop) or (
+                not is_buy and market_open > stop
+            )
+            if max_layers > 1 and layers == 1 and not friday_flat and not gap_beyond_stop:
+                if is_buy:
+                    layer_touched = (
+                        market_open <= layer_trigger
+                        or float(bar["bid_low"]) <= layer_trigger
+                    )
+                else:
+                    layer_touched = (
+                        market_open >= layer_trigger
+                        or float(bar["ask_high"]) >= layer_trigger
+                    )
+                if layer_touched:
+                    quote_spread = float(bar["ask_open"] - bar["bid_open"])
+                    opened_beyond_layer = (
+                        (is_buy and market_open < layer_trigger)
+                        or (not is_buy and market_open > layer_trigger)
+                    )
+                    layer_reference = market_open if opened_beyond_layer else layer_trigger
+                    if is_buy:
+                        layer_entry = (
+                            float(bar["ask_open"])
+                            if opened_beyond_layer
+                            else layer_reference + quote_spread
+                        )
+                    else:
+                        layer_entry = (
+                            float(bar["bid_open"])
+                            if opened_beyond_layer
+                            else layer_reference - quote_spread
+                        )
+                    spread += quote_spread
+                    layers = 2
+                    basket_reference = (anchor + layer_reference) / 2
+                    basket_offset = (
+                        float(config.get("basket_offset_atr", 1.0))
+                        * distance
+                        / float(config["stop_atr"])
+                    )
+                    target = (
+                        basket_reference + basket_offset
+                        if is_buy
+                        else basket_reference - basket_offset
+                    )
             decision = resolve_exit(
                 bar,
                 is_buy=is_buy,
@@ -156,6 +212,39 @@ def run_engine(
                 distance=distance,
                 exit_at_open=decision.at_open if decision is not None else False,
             )
+            if layers == 2:
+                if decision is not None and decision.at_open:
+                    bar_mae_r = bar_mfe_r = (
+                        (
+                            (decision.price - entry)
+                            + (decision.price - layer_entry)
+                        )
+                        / distance
+                        if is_buy
+                        else (
+                            (entry - decision.price)
+                            + (layer_entry - decision.price)
+                        )
+                        / distance
+                    )
+                elif is_buy:
+                    bar_mae_r = (
+                        (float(bar["bid_low"]) - entry)
+                        + (float(bar["bid_low"]) - layer_entry)
+                    ) / distance
+                    bar_mfe_r = (
+                        (float(bar["bid_high"]) - entry)
+                        + (float(bar["bid_high"]) - layer_entry)
+                    ) / distance
+                else:
+                    bar_mae_r = (
+                        (entry - float(bar["ask_high"]))
+                        + (layer_entry - float(bar["ask_high"]))
+                    ) / distance
+                    bar_mfe_r = (
+                        (entry - float(bar["ask_low"]))
+                        + (layer_entry - float(bar["ask_low"]))
+                    ) / distance
             mae_r = min(mae_r, bar_mae_r)
             mfe_r = max(mfe_r, bar_mfe_r)
             if decision is None:
@@ -168,11 +257,18 @@ def run_engine(
                 )
             exit_price = decision.price
             exit_reason = decision.reason
-            r_multiple = (
-                (exit_price - entry) / distance
-                if is_buy
-                else (entry - exit_price) / distance
-            )
+            if layers == 1:
+                r_multiple = (
+                    (exit_price - entry) / distance
+                    if is_buy
+                    else (entry - exit_price) / distance
+                )
+            else:
+                r_multiple = (
+                    ((exit_price - entry) + (exit_price - layer_entry)) / distance
+                    if is_buy
+                    else ((entry - exit_price) + (layer_entry - exit_price)) / distance
+                )
             flags = ""
             if gaps is not None and not gaps.empty:
                 open_across_gap = (
@@ -187,7 +283,7 @@ def run_engine(
                     "entry_ts": entry_bar["timestamp_utc"],
                     "exit_ts": bar["timestamp_utc"],
                     "dir": "BUY" if is_buy else "SELL",
-                    "layers": 1,
+                    "layers": layers,
                     "entry": entry,
                     "exit": exit_price,
                     "stop": stop,

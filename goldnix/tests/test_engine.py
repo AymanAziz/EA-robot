@@ -14,6 +14,7 @@ def _config(**overrides):
         "stop_atr": 1.0,
         "target_atr": 2.0,
         "min_distance_usd": 0.50,
+        "max_layers": 1,
         "friday_no_entry_from_utc": "19:00",
         "friday_flat_utc": "20:00",
         "daily_halt_r": -2.0,
@@ -466,3 +467,67 @@ def test_raw_bars_are_prepared_with_aroon_series_and_simple_atr():
 
     assert result.signals == 1
     assert len(result.trades) == 1
+
+
+def test_two_layer_zero_spread_basket_win_matches_declared_two_r_geometry():
+    bars = _bars(
+        [
+            {"timestamp_utc": "2025-01-06T00:00:00Z", "signal": 1},
+            {
+                "timestamp_utc": "2025-01-06T01:00:00Z",
+                "ask_open": 100.0,
+                "ask_high": 100.5,
+                "ask_low": 99.4,
+                "ask_close": 100.0,
+                "bid_high": 100.5,
+                "bid_low": 99.4,
+            },
+            {
+                "timestamp_utc": "2025-01-06T02:00:00Z",
+                "ask_open": 100.0,
+                "ask_high": 100.8,
+                "ask_low": 99.6,
+                "ask_close": 100.75,
+                "bid_high": 100.8,
+                "bid_low": 99.6,
+            },
+        ]
+    )
+
+    trade = run_engine(
+        bars,
+        _config(max_layers=2, layer_atr=0.5, basket_offset_atr=1.0),
+    ).trades.iloc[0]
+
+    assert trade["layers"] == 2
+    assert trade["target"] == pytest.approx(100.75)
+    assert trade["exit"] == pytest.approx(100.75)
+    assert trade["spread_paid"] == pytest.approx(0.0)
+    assert trade["r_multiple"] == pytest.approx(2.0)
+
+
+def test_two_layer_zero_spread_basket_loss_matches_declared_minus_one_point_five_r():
+    bars = _bars(
+        [
+            {"timestamp_utc": "2025-01-06T00:00:00Z", "signal": 1},
+            {
+                "timestamp_utc": "2025-01-06T01:00:00Z",
+                "ask_open": 100.0,
+                "ask_high": 100.2,
+                "ask_low": 98.9,
+                "ask_close": 99.0,
+                "bid_high": 100.2,
+                "bid_low": 98.9,
+                "bid_close": 99.0,
+            },
+        ]
+    )
+
+    trade = run_engine(
+        bars,
+        _config(max_layers=2, layer_atr=0.5, basket_offset_atr=1.0),
+    ).trades.iloc[0]
+
+    assert trade["layers"] == 2
+    assert trade["exit"] == pytest.approx(99.0)
+    assert trade["r_multiple"] == pytest.approx(-1.5)

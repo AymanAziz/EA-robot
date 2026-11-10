@@ -47,3 +47,27 @@ def test_decision_config_round_trips_to_expected_python_values(tmp_path):
 
     assert loaded == EXPECTED_DECISION
     assert load_yaml(emitted) == EXPECTED_DECISION
+
+
+def test_all_predeclared_step5_variants_are_strict_yaml_files():
+    variants = DECISION_CONFIG.parent / "variants"
+    expected = {
+        "ties_oldest.yaml": {"ties": "oldest"},
+        "ties_average.yaml": {"ties": "average"},
+        "vol_ceiling_025.yaml": {"vol_ceiling_atr": 0.25},
+        "vol_ceiling_040.yaml": {"vol_ceiling_atr": 0.40},
+        "fill_target_first.yaml": {"fill_policy": "target_first"},
+        "gap_both_at_open.yaml": {"gap_policy": "both_at_open"},
+        "spread_1_5.yaml": {"spread_multiplier": 1.5},
+        "spread_2_0.yaml": {"spread_multiplier": 2.0},
+        "spread_zero.yaml": {"spread_multiplier": 0.0},
+        "vf_low_abs.yaml": {"volume_filter": "vf_low_abs"},
+        "news_on.yaml": {"news_filter": True},
+        "layer.yaml": {
+            "max_layers": 2,
+            "layer_atr": 0.5,
+            "basket_offset_atr": 1.0,
+        },
+    }
+
+    assert {path.name: load_yaml(path) for path in variants.glob("*.yaml")} == expected

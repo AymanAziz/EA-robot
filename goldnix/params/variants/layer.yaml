@@ -1,0 +1,3 @@
+max_layers: 2
+layer_atr: 0.5
+basket_offset_atr: 1.0
