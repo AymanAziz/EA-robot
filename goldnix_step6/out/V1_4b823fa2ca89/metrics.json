@@ -1,0 +1,289 @@
+{
+  "atr_evidence_sha256": "44b349a7a67d2ebe5cc18392b142a024b20326c5ac89b8de9b1a45842d8d4af7",
+  "data_sha256": {
+    "clean": "13190208b6acf53336f46d9e5280694659aa8545a49a9013613fc1abf0ce8c2d",
+    "raw": "c680f6cd394384ee1a21f7a82cb859f1eff00949ac945208a9c457829788f989"
+  },
+  "eras": {
+    "A": {
+      "baskets": 528,
+      "bootstrap": {
+        "baseline_mean": -0.18159771701605196,
+        "edge_lower": -0.009948137046835635,
+        "edge_point": 0.09926171975194274,
+        "empty_resamples_rejected": 0,
+        "mean_lower": -0.19230165945344554,
+        "mean_r": -0.08233599726410921,
+        "months": 75,
+        "resamples": 10000,
+        "standard_error": 0.06748091463103656,
+        "zero_trade_months": 0
+      },
+      "engine_cost_skip_share": 0.07653910149750416,
+      "fill_delta_pp": 0.5681818181818177,
+      "gap_risk_share": 0.0,
+      "long_mean_r": -0.013060407071948386,
+      "longest_losing_streak": 11,
+      "longs": 312,
+      "mean_atr": 3.1858238636363634,
+      "mean_mae_r": -1.3116510769658563,
+      "mean_mfe_r": 1.247778940704605,
+      "mean_r": -0.08233599726410921,
+      "mean_spread_r": 0.16349345333060028,
+      "reference_assumption": "Fixed stop/target-only outcomes, excluding gaps and timed exits",
+      "reference_break_even_win_rate": 0.3878311511102001,
+      "reference_win_rate_for_0_15r": 0.43783115111020005,
+      "sampler": {
+        "difference_se": 0.005191300628787935,
+        "limitation": "Finite MCMC burn-in approximates uniform feasible schedules; diagnostics do not prove convergence",
+        "mean_acceptance": 0.7544914772727274,
+        "mean_initial_retention": 0.008607954545454545,
+        "midpoint_to_final_difference": -0.008998035242645159,
+        "mixing_warning": false,
+        "retention_excess_vs_unconstrained": 0.0007524538620259858
+      },
+      "short_mean_r": -0.18240073865278586,
+      "shorts": 216,
+      "signals_after_confirmation": 601,
+      "spread_paid_usd": 237.86000000000007,
+      "time_in_market_share": 0.06872237692563166,
+      "win_rate": 0.3693181818181818
+    },
+    "B": {
+      "baskets": 388,
+      "bootstrap": {
+        "baseline_mean": -0.11787505338032393,
+        "edge_lower": -0.005829852500242993,
+        "edge_point": 0.11531114177330784,
+        "empty_resamples_rejected": 0,
+        "mean_lower": -0.12105162281091676,
+        "mean_r": -0.002563911607016086,
+        "months": 52,
+        "resamples": 10000,
+        "standard_error": 0.07232743504499516,
+        "zero_trade_months": 0
+      },
+      "engine_cost_skip_share": 0.004889975550122249,
+      "fill_delta_pp": 0.773195876288657,
+      "gap_risk_share": 0.002577319587628866,
+      "long_mean_r": -0.11005965787952046,
+      "longest_losing_streak": 10,
+      "longs": 184,
+      "mean_atr": 3.742762334315167,
+      "mean_mae_r": -1.3463231366442494,
+      "mean_mfe_r": 1.358951266699499,
+      "mean_r": -0.002563911607016086,
+      "mean_spread_r": 0.10315531079810139,
+      "reference_assumption": "Fixed stop/target-only outcomes, excluding gaps and timed exits",
+      "reference_break_even_win_rate": 0.36771843693270045,
+      "reference_win_rate_for_0_15r": 0.41771843693270044,
+      "sampler": {
+        "difference_se": 0.006944098581757698,
+        "limitation": "Finite MCMC burn-in approximates uniform feasible schedules; diagnostics do not prove convergence",
+        "mean_acceptance": 0.7551855670103091,
+        "mean_initial_retention": 0.008195876288659793,
+        "midpoint_to_final_difference": 0.010210524765608886,
+        "mixing_warning": false,
+        "retention_excess_vs_unconstrained": 0.00032553585096908893
+      },
+      "short_mean_r": 0.09439303601132122,
+      "shorts": 204,
+      "signals_after_confirmation": 409,
+      "spread_paid_usd": 135.3699999999999,
+      "time_in_market_share": 0.07023633101942126,
+      "win_rate": 0.36855670103092786
+    },
+    "C": {
+      "baskets": 419,
+      "bootstrap": {
+        "baseline_mean": -0.13337072756162785,
+        "edge_lower": 0.002679192473124139,
+        "edge_point": 0.13047614977951486,
+        "empty_resamples_rejected": 0,
+        "mean_lower": -0.12871629354867498,
+        "mean_r": -0.0028945777821129965,
+        "months": 60,
+        "resamples": 10000,
+        "standard_error": 0.07772179909275018,
+        "zero_trade_months": 0
+      },
+      "engine_cost_skip_share": 0.00904977375565611,
+      "fill_delta_pp": 0.7159904534606187,
+      "gap_risk_share": 0.00477326968973747,
+      "long_mean_r": 0.07024959015205384,
+      "longest_losing_streak": 16,
+      "longs": 217,
+      "mean_atr": 3.1411396181384257,
+      "mean_mae_r": -1.3336339142917697,
+      "mean_mfe_r": 1.2893879065264016,
+      "mean_r": -0.0028945777821129965,
+      "mean_spread_r": 0.10877728058205331,
+      "reference_assumption": "Fixed stop/target-only outcomes, excluding gaps and timed exits",
+      "reference_break_even_win_rate": 0.36959242686068444,
+      "reference_win_rate_for_0_15r": 0.4195924268606844,
+      "sampler": {
+        "difference_se": 0.006971030396801144,
+        "limitation": "Finite MCMC burn-in approximates uniform feasible schedules; diagnostics do not prove convergence",
+        "mean_acceptance": 0.77397553699284,
+        "mean_initial_retention": 0.007863961813842482,
+        "midpoint_to_final_difference": 0.0005676899612879674,
+        "mixing_warning": false,
+        "retention_excess_vs_unconstrained": 0.0004095020974228755
+      },
+      "short_mean_r": -0.08147024333515358,
+      "shorts": 202,
+      "signals_after_confirmation": 442,
+      "spread_paid_usd": 129.22000000000025,
+      "time_in_market_share": 0.06936964400636791,
+      "win_rate": 0.3723150357995227
+    },
+    "D": {
+      "baskets": 399,
+      "bootstrap": {
+        "baseline_mean": -0.10988831068844443,
+        "edge_lower": -0.052289572034726985,
+        "edge_point": 0.051619563819599965,
+        "empty_resamples_rejected": 0,
+        "mean_lower": -0.16487853063520955,
+        "mean_r": -0.058268746868844465,
+        "months": 60,
+        "resamples": 10000,
+        "standard_error": 0.06466368453875494,
+        "zero_trade_months": 0
+      },
+      "engine_cost_skip_share": 0.0,
+      "fill_delta_pp": 1.5037593984962405,
+      "gap_risk_share": 0.002506265664160401,
+      "long_mean_r": -0.04507104810978887,
+      "longest_losing_streak": 11,
+      "longs": 214,
+      "mean_atr": 5.6291469745793,
+      "mean_mae_r": -1.339010194245855,
+      "mean_mfe_r": 1.3508605895489856,
+      "mean_r": -0.058268746868844465,
+      "mean_spread_r": 0.0860748838881369,
+      "reference_assumption": "Fixed stop/target-only outcomes, excluding gaps and timed exits",
+      "reference_break_even_win_rate": 0.3620249612960456,
+      "reference_win_rate_for_0_15r": 0.4120249612960456,
+      "sampler": {
+        "difference_se": 0.006636391344787444,
+        "limitation": "Finite MCMC burn-in approximates uniform feasible schedules; diagnostics do not prove convergence",
+        "mean_acceptance": 0.7818577694235589,
+        "mean_initial_retention": 0.007481203007518798,
+        "midpoint_to_final_difference": -0.009415928606215117,
+        "mixing_warning": false,
+        "retention_excess_vs_unconstrained": 0.00048473049010105935
+      },
+      "short_mean_r": -0.07353527408202237,
+      "shorts": 185,
+      "signals_after_confirmation": 411,
+      "spread_paid_usd": 170.35000000000036,
+      "time_in_market_share": 0.07248926022392856,
+      "win_rate": 0.3483709273182957
+    }
+  },
+  "evaluation_complete": true,
+  "gate_inputs": {
+    "account_usd": 20.0,
+    "atr_parity": true,
+    "baskets": 1734,
+    "bootstrap_lower_bound": -0.09642356731844724,
+    "edge_lower_bound": 0.04309296910208051,
+    "gap_risk_share": 0.002306805074971165,
+    "max_fill_delta_pp": 1.5037593984962405,
+    "mc_p99_drawdown_usd": 160.21199642857096,
+    "positive_eras": 0,
+    "signal_minus_baseline": 0.09943288567399441
+  },
+  "gates": {
+    "G1": {
+      "passed": false,
+      "rule": "> 0.0",
+      "value": -0.09642356731844724
+    },
+    "G2": {
+      "passed": false,
+      "rule": ">= 0.1",
+      "value": 0.09943288567399441
+    },
+    "G3": {
+      "passed": true,
+      "rule": "> 0.0",
+      "value": 0.04309296910208051
+    },
+    "G4": {
+      "passed": false,
+      "rule": ">= 3",
+      "value": 0
+    },
+    "G5": {
+      "passed": true,
+      "rule": ">= 1000",
+      "value": 1734
+    },
+    "G6": {
+      "passed": true,
+      "rule": "<= 0.1",
+      "value": 0.002306805074971165
+    },
+    "G7": {
+      "passed": false,
+      "rule": "<= 2.4",
+      "value": 160.21199642857096
+    },
+    "G8": {
+      "passed": true,
+      "rule": "<= 8.0",
+      "value": 1.5037593984962405
+    },
+    "G9": {
+      "passed": true,
+      "rule": "passed",
+      "value": true
+    }
+  },
+  "holdout_run": false,
+  "monte_carlo": {
+    "observed_rate_per_year": 84.23161514845889,
+    "p99_usd": 160.21199642857096,
+    "paths": 100000,
+    "trades_per_year": 84
+  },
+  "numerical_gate_verdict": "NOT_TRADEABLE_AT_THIS_ACCOUNT_SIZE",
+  "pooled": {
+    "baskets": 1734,
+    "bootstrap": {
+      "baseline_mean": -0.1391850554262125,
+      "edge_lower": 0.04309296910208051,
+      "edge_point": 0.09943288567399441,
+      "empty_resamples_rejected": 0,
+      "mean_lower": -0.09642356731844724,
+      "mean_r": -0.039752169752218104,
+      "months": 247,
+      "resamples": 10000,
+      "standard_error": 0.03534862889271941,
+      "zero_trade_months": 0
+    },
+    "gap_risk_share": 0.002306805074971165,
+    "long_mean_r": -0.020201582835791584,
+    "longest_losing_streak": 16,
+    "longs": 927,
+    "mean_atr": 3.861865010710164,
+    "mean_mae_r": -1.3310166224038573,
+    "mean_mfe_r": 1.3064286506551583,
+    "mean_r": -0.039752169752218104,
+    "mean_spread_r": 0.11895638015194192,
+    "reference_assumption": "Fixed stop/target-only outcomes, excluding gaps and timed exits",
+    "reference_break_even_win_rate": 0.3729854600506473,
+    "reference_win_rate_for_0_15r": 0.4229854600506473,
+    "short_mean_r": -0.062209907139488714,
+    "shorts": 807,
+    "spread_paid_usd": 672.8000000000006,
+    "time_in_market_share": 0.07008904424764473,
+    "win_rate": 0.36505190311418684
+  },
+  "sampler_has_warning": false,
+  "strategy_trades_match_previous_run": true,
+  "study": "V1",
+  "verdict": "NOT_TRADEABLE_AT_THIS_ACCOUNT_SIZE"
+}

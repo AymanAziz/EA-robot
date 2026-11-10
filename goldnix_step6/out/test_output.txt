@@ -1,0 +1,9 @@
+Command: PYTHONPATH=.:goldnix .venv/bin/pytest -q goldnix/tests goldnix_v2/tests goldnix_step6/tests
+
+........................................................................ [ 65%]
+......................................                                   [100%]
+110 passed in 0.98s
+
+Command: .venv/bin/ruff check goldnix_step6
+
+All checks passed!
