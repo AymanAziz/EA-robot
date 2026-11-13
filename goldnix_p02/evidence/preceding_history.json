@@ -1,0 +1,334 @@
+{
+  "status": "EXPLORATORY_SCREEN_COMPLETE",
+  "formal_step6_passed": false,
+  "selected_for_further_step6_evaluation": null,
+  "windows": [
+    {
+      "label": "January",
+      "run": "P01N_20261113T062543Z",
+      "start_utc": "2023-12-31T22:00:00+00:00",
+      "end_utc": "2024-01-31T22:00:00+00:00",
+      "days": 31.0,
+      "quotes": 2517839,
+      "timers": 2678398,
+      "tick_sha256": "1830c382b37988797f6659f6231b39ae748f8dde12d02ad8c64227d41c49aa2f",
+      "timer_sha256": "a8cdfb377fb09aa0b14664f98da91bafc926d271cdd13fde42850a5d61b5ccd0"
+    },
+    {
+      "label": "February",
+      "run": "P01N_20261113T062008Z",
+      "start_utc": "2024-01-31T22:00:00+00:00",
+      "end_utc": "2024-02-29T22:00:00+00:00",
+      "days": 29.0,
+      "quotes": 1968215,
+      "timers": 2505598,
+      "tick_sha256": "8c184dd5005fd42c7ebcdcf82559ae1317028c6a118a5d10bdeedff989a84ecb",
+      "timer_sha256": "e35bdc53d40e2a663666bcfc65a4b78baa584f79694928de5c5c9312ac698a17"
+    },
+    {
+      "label": "March01_14",
+      "run": "P01N_20261113T070748Z",
+      "start_utc": "2024-02-29T22:00:00+00:00",
+      "end_utc": "2024-03-14T22:00:00+00:00",
+      "days": 14.0,
+      "quotes": 1018059,
+      "timers": 1209598,
+      "tick_sha256": "95640a2b47e657be4f67a276c56de14070da9136567d920425964595dc2b838d",
+      "timer_sha256": "c07867cdb3665ab6a6f701b2409f33c1dcad55fd25c5c3f538c4c14447a7c6d8"
+    }
+  ],
+  "results": {
+    "P01": {
+      "trades": 318,
+      "buy": 156,
+      "sell": 162,
+      "mean_r": -0.03663834866704993,
+      "pnl_usc": -18.899999999999995,
+      "bootstrap": {
+        "mean_r": -0.03663834866704993,
+        "lower_5pct_r": -0.07291762503092608,
+        "upper_95pct_r": -0.0021667716711420153,
+        "standard_error": 0.026866668380324657,
+        "months": 3,
+        "zero_trade_months": 0,
+        "resamples": 10000,
+        "seed": 20261115,
+        "empty_resamples_rejected": 0
+      },
+      "mc": {
+        "p99_drawdown_usd": 3.0334019999999975,
+        "median_drawdown_usd": 1.4176499999999996,
+        "trades_per_year": 1570,
+        "paths": 100000,
+        "seed": 20261116,
+        "chunk_size": 256,
+        "model": "IID resampling of realized net USD trades into one-year paths; no new signal simulation"
+      },
+      "mean_delta_vs_common": 0.020064441247142364,
+      "paired_month_delta_lower": -0.0033173122789597487,
+      "retention_vs_common": 1.0127388535031847
+    },
+    "COMMON_P01": {
+      "trades": 314,
+      "buy": 151,
+      "sell": 163,
+      "mean_r": -0.056702789914192295,
+      "pnl_usc": -29.68,
+      "bootstrap": {
+        "mean_r": -0.056702789914192295,
+        "lower_5pct_r": -0.12558455186154377,
+        "upper_95pct_r": 0.0007944131288886391,
+        "standard_error": 0.047294901975372,
+        "months": 3,
+        "zero_trade_months": 0,
+        "resamples": 10000,
+        "seed": 20261115,
+        "empty_resamples_rejected": 0
+      },
+      "mc": {
+        "p99_drawdown_usd": 3.5135069999999953,
+        "median_drawdown_usd": 1.8295000000000003,
+        "trades_per_year": 1550,
+        "paths": 100000,
+        "seed": 20261116,
+        "chunk_size": 256,
+        "model": "IID resampling of realized net USD trades into one-year paths; no new signal simulation"
+      },
+      "mean_delta_vs_common": 0.0,
+      "paired_month_delta_lower": 0.0,
+      "retention_vs_common": 1.0
+    },
+    "P02_M15": {
+      "trades": 230,
+      "buy": 111,
+      "sell": 119,
+      "mean_r": -0.18072495487433812,
+      "pnl_usc": -71.69000000000001,
+      "bootstrap": {
+        "mean_r": -0.18072495487433812,
+        "lower_5pct_r": -0.28010014265112165,
+        "upper_95pct_r": -0.08883409086317003,
+        "standard_error": 0.07571663315695755,
+        "months": 3,
+        "zero_trade_months": 0,
+        "resamples": 10000,
+        "seed": 20261115,
+        "empty_resamples_rejected": 0
+      },
+      "mc": {
+        "p99_drawdown_usd": 5.176005000000004,
+        "median_drawdown_usd": 3.650399999999993,
+        "trades_per_year": 1135,
+        "paths": 100000,
+        "seed": 20261116,
+        "chunk_size": 256,
+        "model": "IID resampling of realized net USD trades into one-year paths; no new signal simulation"
+      },
+      "mean_delta_vs_common": -0.12402216496014583,
+      "paired_month_delta_lower": -0.1859283061805954,
+      "retention_vs_common": 0.732484076433121,
+      "improvement_screen": {
+        "passed": false,
+        "checks": {
+          "all_windows_better": false,
+          "p99_drawdown_lower": false,
+          "both_sides_observed": true
+        },
+        "windows": [
+          {
+            "window": "January",
+            "mean_r_improved": false,
+            "net_usc_improved": false
+          },
+          {
+            "window": "February",
+            "mean_r_improved": false,
+            "net_usc_improved": false
+          },
+          {
+            "window": "March01_14",
+            "mean_r_improved": false,
+            "net_usc_improved": false
+          }
+        ]
+      }
+    },
+    "P03_H1": {
+      "trades": 217,
+      "buy": 110,
+      "sell": 107,
+      "mean_r": -0.09720778724722333,
+      "pnl_usc": -47.260000000000005,
+      "bootstrap": {
+        "mean_r": -0.09720778724722333,
+        "lower_5pct_r": -0.28089602940738684,
+        "upper_95pct_r": 0.04185982928698952,
+        "standard_error": 0.12307640128683803,
+        "months": 3,
+        "zero_trade_months": 0,
+        "resamples": 10000,
+        "seed": 20261115,
+        "empty_resamples_rejected": 0
+      },
+      "mc": {
+        "p99_drawdown_usd": 4.027102999999998,
+        "median_drawdown_usd": 2.5105000000000004,
+        "trades_per_year": 1071,
+        "paths": 100000,
+        "seed": 20261116,
+        "chunk_size": 256,
+        "model": "IID resampling of realized net USD trades into one-year paths; no new signal simulation"
+      },
+      "mean_delta_vs_common": -0.040504997333031034,
+      "paired_month_delta_lower": -0.17611078314722628,
+      "retention_vs_common": 0.6910828025477707,
+      "improvement_screen": {
+        "passed": false,
+        "checks": {
+          "all_windows_better": false,
+          "p99_drawdown_lower": false,
+          "both_sides_observed": true
+        },
+        "windows": [
+          {
+            "window": "January",
+            "mean_r_improved": false,
+            "net_usc_improved": false
+          },
+          {
+            "window": "February",
+            "mean_r_improved": false,
+            "net_usc_improved": false
+          },
+          {
+            "window": "March01_14",
+            "mean_r_improved": true,
+            "net_usc_improved": true
+          }
+        ]
+      }
+    },
+    "P04_BOTH": {
+      "trades": 177,
+      "buy": 91,
+      "sell": 86,
+      "mean_r": -0.044151494105128204,
+      "pnl_usc": -24.54999999999999,
+      "bootstrap": {
+        "mean_r": -0.044151494105128204,
+        "lower_5pct_r": -0.22071603557105526,
+        "upper_95pct_r": 0.0871846919113988,
+        "standard_error": 0.1207147913527553,
+        "months": 3,
+        "zero_trade_months": 0,
+        "resamples": 10000,
+        "seed": 20261115,
+        "empty_resamples_rejected": 0
+      },
+      "mc": {
+        "p99_drawdown_usd": 2.6977039999999946,
+        "median_drawdown_usd": 1.4465999999999992,
+        "trades_per_year": 874,
+        "paths": 100000,
+        "seed": 20261116,
+        "chunk_size": 256,
+        "model": "IID resampling of realized net USD trades into one-year paths; no new signal simulation"
+      },
+      "mean_delta_vs_common": 0.01255129580906409,
+      "paired_month_delta_lower": -0.1159307893108947,
+      "retention_vs_common": 0.5636942675159236,
+      "improvement_screen": {
+        "passed": false,
+        "checks": {
+          "all_windows_better": false,
+          "p99_drawdown_lower": true,
+          "both_sides_observed": true
+        },
+        "windows": [
+          {
+            "window": "January",
+            "mean_r_improved": true,
+            "net_usc_improved": true
+          },
+          {
+            "window": "February",
+            "mean_r_improved": false,
+            "net_usc_improved": false
+          },
+          {
+            "window": "March01_14",
+            "mean_r_improved": true,
+            "net_usc_improved": true
+          }
+        ]
+      }
+    },
+    "P05_BOTH_CLOSE": {
+      "trades": 156,
+      "buy": 77,
+      "sell": 79,
+      "mean_r": -0.0551388030512046,
+      "pnl_usc": -22.400000000000006,
+      "bootstrap": {
+        "mean_r": -0.0551388030512046,
+        "lower_5pct_r": -0.24683864549840323,
+        "upper_95pct_r": 0.08544108141007441,
+        "standard_error": 0.14028497124034972,
+        "months": 3,
+        "zero_trade_months": 0,
+        "resamples": 10000,
+        "seed": 20261115,
+        "empty_resamples_rejected": 0
+      },
+      "mc": {
+        "p99_drawdown_usd": 2.4859999999999984,
+        "median_drawdown_usd": 1.3199000000000018,
+        "trades_per_year": 770,
+        "paths": 100000,
+        "seed": 20261116,
+        "chunk_size": 256,
+        "model": "IID resampling of realized net USD trades into one-year paths; no new signal simulation"
+      },
+      "mean_delta_vs_common": 0.0015639868629876916,
+      "paired_month_delta_lower": -0.14205339923824267,
+      "retention_vs_common": 0.4968152866242038,
+      "improvement_screen": {
+        "passed": false,
+        "checks": {
+          "all_windows_better": false,
+          "p99_drawdown_lower": true,
+          "both_sides_observed": true
+        },
+        "windows": [
+          {
+            "window": "January",
+            "mean_r_improved": true,
+            "net_usc_improved": true
+          },
+          {
+            "window": "February",
+            "mean_r_improved": false,
+            "net_usc_improved": false
+          },
+          {
+            "window": "March01_14",
+            "mean_r_improved": true,
+            "net_usc_improved": false
+          }
+        ]
+      }
+    }
+  },
+  "step7_approval_required": true,
+  "step7_approval_received": false,
+  "step7_run": false,
+  "active_demo_candidate": "P01_UNCHANGED",
+  "preceding_history_used": true,
+  "limitations": [
+    "Generated quotes and3 partial/reused calendar blocks, all inside eraD",
+    "Four fixed candidates after at least82 prior variants; selection is exploratory",
+    "Original1000-trade/four-era/matched-baseline requirements remain unmet",
+    "One-year IID drawdown reductions may partly reflect fewer trades; per-trade and per-window comparisons are retained",
+    "No formal Step6 freeze or Step7 evidence is created"
+  ]
+}

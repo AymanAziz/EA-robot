@@ -1,0 +1,12 @@
+{
+  "recorded_utc": "2026-11-12T13:37:37.782490+00:00",
+  "supersedes": "out/U01_step6",
+  "superseded_freeze_sha256": "f1cbb09625ef3d1683519ea30809371f1fc82b8d098ad37f4becc4883ecfe22c",
+  "reason": "Intrabar stops previously assigned scheduled close timestamp; a stop in a 23:55 candle was wrongly realized on the next UTC day for daily-halt accounting. Corrected to label the stop by its entry M5 bar, with explicit timestamp precision and upper bound. Conservative exit_index lockout unchanged.",
+  "strategy_parameters_changed": false,
+  "registered_variant_count_changed": false,
+  "protocol_sha256_unchanged": true,
+  "prior_results_seen": true,
+  "prior_status": "FAIL_WITH_G9_UNVERIFIED",
+  "correction_policy": "Retain original artifacts; rerun identical registered rules and statistical seeds after behavioral midnight regression check; no parameter search."
+}

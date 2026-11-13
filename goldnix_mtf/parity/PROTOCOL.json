@@ -1,0 +1,17 @@
+{
+  "registered_utc": "2026-11-12T13:43:15.100948+00:00",
+  "scope": "Read-only JustMarkets XAUUSD.c M5 ATR14, H1 EMA50, M15 EMA20 and completed higher-timeframe availability parity only. No strategy signals or returns evaluated on these recent broker prices.",
+  "rows_each": 1000,
+  "warmup_rows": 800,
+  "compare_rows": 200,
+  "strict_price_tolerance": 0.01,
+  "m5_availability_comparisons": 200,
+  "minimum_complete_m5_aggregates": {
+    "H1": 10,
+    "M15": 40
+  },
+  "account": "Existing verified JustMarkets-Demo6 USC demo only, matching private expected identity",
+  "prerequisite": "Existing demo must have verified_completed receipt and be flat; terminal and script trade permissions disabled",
+  "time_alignment": "Compare server timestamps directly for parity; UTC conversion of this limited recent range only uses a checked whole-hour observed offset. No historical DST rule inferred.",
+  "G9_note": "Supplement the historical evaluation with separate native evidence; retain both prior immutable historical reports. No parameter change or historical rerun."
+}

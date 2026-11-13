@@ -1,0 +1,25 @@
+{
+  "source": "goldnix_p01/replay.py",
+  "sha256": "3e13fc858798df43f88c2a965dcaf3d54785a5fc5347b41918a9e24f41964e1b",
+  "only_changes": [
+    [
+      "from .data import features, minute_bars, validate_ticks",
+      "from goldnix_p01.data import features, minute_bars, validate_ticks"
+    ],
+    [
+      "from .engine import Broker, grid",
+      "from goldnix_p01.engine import Broker, grid\nfrom .features import filter_features"
+    ],
+    [
+      "def replay(ticks, timers, contract, *, offset=7200):",
+      "def replay(ticks, timers, contract, *, offset=7200, candidate=\"P01\"):"
+    ],
+    [
+      "bars = features(minute_bars(ticks))",
+      "bars = filter_features(features(minute_bars(ticks)), candidate)"
+    ]
+  ],
+  "later_revisions": [
+    "warmup_revision.json: optional strictly earlier indicator context; sizing and protection remain unchanged"
+  ]
+}

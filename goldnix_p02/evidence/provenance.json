@@ -1,0 +1,27 @@
+{
+  "qualification": "Exploratory generated-tick screen only; formal Step6 not passed",
+  "artifacts": {
+    "cold_start.json": {
+      "sha256": "ba692911e81d6c6090e7c69c2e0143792584b492c2e0ee35d5ccaf97cccf0cbe",
+      "copied_from": "goldnix_p02/out/S6_FILTERS_20261113T071242Z/RESULT.json"
+    },
+    "cold_start.csv": {
+      "sha256": "3b88289b6147898984cd113879d84bad091f61b1a4e369ac2e320b562f241db4",
+      "copied_from": "goldnix_p02/out/S6_FILTERS_20261113T071242Z/windows.csv"
+    },
+    "cold_start": {
+      "source_manifest_sha256": "15ba9ced1dbb7000eec7f02edeb974d293c116c0be89615732ee4a0be640460f"
+    },
+    "preceding_history.json": {
+      "sha256": "b16b2fe4ae5ad8c6b72214c0b36506c6f69d66fd07180844b4aa642bfb7d6a7a",
+      "copied_from": "goldnix_p02/out/S6_FILTERS_20261113T072326Z/RESULT.json"
+    },
+    "preceding_history.csv": {
+      "sha256": "e88af112668c3be45b3e04639d053959047ab1b45d2c9be3a72ec681816dfe2b",
+      "copied_from": "goldnix_p02/out/S6_FILTERS_20261113T072326Z/windows.csv"
+    },
+    "preceding_history": {
+      "source_manifest_sha256": "1f675d1da937ed55a71533721bf3653274bdaa2ff13db9dc9896c51b831cca79"
+    }
+  }
+}

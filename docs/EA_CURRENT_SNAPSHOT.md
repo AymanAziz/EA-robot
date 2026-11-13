@@ -15,12 +15,15 @@ raw quote archives and compiled executables are excluded from this source push.
 README links to local run artifacts require those artifacts to be regenerated
 or restored from the user's local workspace; source code is preserved here.
 
-The current P01 engineering evidence consists of249 native/reference trade
-matches and58,489 signal-decision matches across January/February2024 generated
-broker ticks. Formal Step6 has not passed. The updated conservative diagnostic
-has mean−0.050252R, bootstrap lower bound−0.102680R and annual IID Monte Carlo
-p99 drawdown17.87% of aUSD20 account. These two months do not establish four-era
-performance. Full data and a certified matched random baseline are missing.
+The current P01 engineering evidence consists of 318 native/reference trade
+matches and 72,136 signal-decision matches across January, February and
+March 1–14, 2024 generated broker ticks. Formal Step 6 has not passed.
+The three-window conservative diagnostic has mean −0.036638 R and net −18.90
+USC; adding March changes the sample, not the strategy. Four preregistered
+higher-timeframe filters failed the improvement screen. Full four-era data
+and a certified matched random baseline are missing. See the complete
+[Step 6 comparison](../goldnix_p02/README.md), including all failed candidates,
+the preceding-history correction and simulated drawdown limits.
 
 The user has explicitly required **approval after Step6 before running Step7**.
 No subsequent Step7 price access, holdout consumption or evaluation may proceed
@@ -30,7 +33,7 @@ Run the research tests from the repository root with the project's Python
 environment and `PYTHONPATH=goldnix:.`. For the current candidate:
 
 ```sh
-PYTHONPATH=goldnix:. .venv/bin/pytest -q goldnix_p01/tests goldnix_step6/tests goldnix_step7/tests
+PYTHONPATH=goldnix:. .venv/bin/pytest -q goldnix_p02/tests goldnix_p01/tests goldnix_step6/tests goldnix_step7/tests
 ```
 
 Native compilation/testing requires the authorized local MT5 installation.

@@ -1,0 +1,9 @@
+{
+  "registered_utc": "2026-11-12T13:27:41.750111+00:00",
+  "candidate_id": "U01_H1_M15_M5_RETEST",
+  "protocol_sha256": "df67f0716653650cd3bb16c98c4b28e62a72d3992800d5d76c5ffc524e2ca363",
+  "performance_inspected": false,
+  "prior_registered_variants": 68,
+  "new_registered_variants": 1,
+  "cumulative_registered_variants": 69
+}
