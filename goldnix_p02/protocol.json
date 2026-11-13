@@ -1,0 +1,42 @@
+{
+  "registered_utc": "2026-11-13T07:08:00Z",
+  "authorization": "User requested pushing current code, improving and completing Step6; Step7 only after later approval",
+  "status": "FINITE_EXPLORATORY_STEP6_BATCH",
+  "preserved_baseline_commit": "6e12f24",
+  "preserved_candidate": "M1_PROFIT_PROTECTION_P01",
+  "previous_known_registered_variants_minimum": 82,
+  "additional_candidates": 4,
+  "uncounted_prior_m1_choices": true,
+  "candidates": {
+    "P02_M15": "Require current M1 breakout direction equal completed M15 trend",
+    "P03_H1": "Require current M1 breakout direction equal completed H1 trend",
+    "P04_BOTH": "Require current M1 breakout direction equal both completed M15 and H1 trends",
+    "P05_BOTH_CLOSE": "P04 plus BUY midpoint close in upper25% of its M1 range; SELL in lower25%"
+  },
+  "trend": {
+    "price": "Midpoint close; EMA seeded by first period SMA, then alpha=2/(period+1)",
+    "m15_ema_period": 20,
+    "h1_ema_period": 50,
+    "slope_completed_bars": 3,
+    "warmup_complete_bars_each": 100,
+    "direction": "BUY when close>EMA and EMA>EMA three completed bars earlier; SELL mirrored; equality neutral",
+    "aggregation": "UTC buckets from complete observed M1 quote bars; require all15 or60 distinct consecutive minute opens",
+    "availability": "Only at bucket close; current forming candle unavailable; stale if age>=higher timeframe duration",
+    "gaps": "Missing M1 invalidates its entire higher-timeframe aggregate; no interpolation; EMA retains prior observed complete bars across market gaps"
+  },
+  "comparison": {
+    "original": "P01 original replay",
+    "common_baseline": "P01 entries only when both higher timeframes are ready; same readiness mask as all four candidates",
+    "unchanged": "All entry sizing, Bid/Ask, stops, targets, profit policy, fees, day/session limits and one-position envelope remain P01",
+    "source_model": "Previously examined generated January/February2024 ticks; conservative target fill and0.01USC rounding",
+    "additional_in_sample_window": "2024-03-01 broker midnight through2024-03-15 exclusive, UTC+2; evaluate every declared candidate once without selecting or changing parameters first",
+    "not_holdout": "All windows remain inside declared Step6 eraD; no2026 prices or Step7 holdout evaluation",
+    "improvement_screen": "MeanR and netUSC higher than common baseline in January, February and additional March window; pooled p99 drawdown lower; nonempty BUY and SELL populations; report retention and bootstrap uncertainty. This is a screen, not qualification.",
+    "selection": "At most one candidate passing all screen conditions, ranked by pooled meanR; no automatic parameter search or extension of batch",
+    "deployment": "No candidate replaces the active demo EA during this research"
+  },
+  "statistics": {"bootstrap_resamples": 10000, "monte_carlo_paths": 100000, "bootstrap_seed": 20261115, "monte_carlo_seed": 20261116},
+  "gates": "Original G1–G9 unchanged, including1000 trades and200 matched random schedules per era. Full four-era data and baseline remain prerequisites.",
+  "step7": {"user_approval_required": true, "user_approval_received": false, "read_prices": false, "run_preflight_or_evaluation": false},
+  "test_seams": {"features": "Closed higher-timeframe availability, strict missing-minute rejection, future-prefix invariance and mirrored direction", "replay": "Unfiltered fork must reproduce P01; candidate filters may only suppress entries, never enlarge risk or alter protective exit rules"}
+}
