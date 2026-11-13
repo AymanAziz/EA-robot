@@ -1,0 +1,56 @@
+{
+  "registered_utc": "2026-11-13T08:19:00.700219+00:00",
+  "authorization": "User asks to continue previous method and check higher-to-lower timeframe when setup fails/fakeout.",
+  "status": "FINITE_EXPLORATORY_BATCH_NO_AUTO_DEPLOY",
+  "base": "H01_S11_M5_REPLAY unchanged H1 channel20; use existing H1 and M5 inputs 2005-2025 only",
+  "base_result_sha256": "4670badf9960dd939b0acd3014e7b9fe495b5a50e99c3371d20addb148c532d8",
+  "prior_registered_minimum": 86,
+  "additional_variants": 2,
+  "new_registered_minimum": 88,
+  "prior_uncounted_choices": true,
+  "candidates": {
+    "H02_H4": "H01 entries only when latest complete H4 direction agrees; original fixed exits",
+    "H03_H4_FAKEOUT": "H02 entries plus M15 failed-break warning followed by next completed M5 confirmation and exit at next observed M5 open"
+  },
+  "reference": "H01 full trade replay must match preserved records. COMMON_H01 applies H4 readiness only; reports isolate missing-history effects.",
+  "h4": {
+    "minutes": 240,
+    "price": "separately aggregated bid/ask midpoint close",
+    "ema_period": 50,
+    "slope_bars": 3,
+    "warmup": 100,
+    "buy": "close>EMA and EMA>EMA three complete bars earlier",
+    "sell": "strict mirror; equality neutral",
+    "available": "at H4 close only; age <4hours; no incomplete buckets; EMA retains older complete observations across calendar gaps"
+  },
+  "fakeout": {
+    "level": "Frozen H1 prior20-bar midpoint high BUY / low SELL, excluding signal bar",
+    "buffer": "max(signal-close Ask-Bid,0.1*signal H1 ATR14), fixed at entry",
+    "warning": "After entry, a complete M15 midpoint close is beyond frozen level minus BUY buffer / plus SELL buffer, back inside old channel",
+    "confirmation": "The immediately following consecutive completed M5 midpoint close stays beyond that same adverse threshold; otherwise warning cancels",
+    "exit": "First observed M5 open after confirmation. Use BUY Bid / SELL Ask. No same-close fill. If next quote gaps, fill its actual open and retain gap flag. Gap stop, gap target and Friday flatten take precedence at that open; no retroactive protection.",
+    "protection": "Original SL/TP stay active throughout. No widening stops. If stop/target occurs in confirmation candle it precedes the later decision. G8 stop-first and target-first retained.",
+    "missing": "Missing M5 cancels an unconfirmed warning. A confirmed exit intent persists until first observed quote. M15 may warn again later. All logic causal and symmetric."
+  },
+  "baseline": "If preliminary gates all pass,200 matched random schedules per era with the SAME higher-timeframe entry filter and exit path. Random entries use frozen direction-specific prior20 channel level even if no H1 breakout; same envelope and quotas. This measures H1 signal edge conditional on added context.",
+  "statistics": {
+    "bootstrap_resamples": 10000,
+    "bootstrap_seed": 20261116,
+    "monte_carlo_paths": 100000,
+    "monte_carlo_seed": 20261117,
+    "baseline_draws": 200,
+    "baseline_sweeps": 20,
+    "baseline_seed": 20261116
+  },
+  "gates_path": "goldnix/gates/rules.yaml",
+  "gates_sha256": "3c4c3af6caca1edd5ace3db0c3a4057ef7930c030adc50c1f8f4be4de80af6f5",
+  "selection": "Evaluate both once. Full matched baseline only if original G1/G4/G5/G6/G7/G8 pass; report missing G9 native new-context parity. Do not select or deploy a failing candidate or adjust thresholds. Compare net,mean and drawdown to unchanged H01; preserve all failures.",
+  "test_seams": {
+    "features": "Completed H4/M15 availability, stale/missing data, mirror and future-prefix invariance",
+    "execution": "Handworked fakeout/reclaim/gap/stop-before-confirmation examples through trade interface; unchanged original path matches H01"
+  },
+  "step7": "Authorization received; no new untouched registered period exists. Reused2026 evidence is not read or relabelled. This research is Step6 only.",
+  "deployment": "Research first. Existing demo P01 and profit protection remain active until a replacement has evidence; no H01 or M1 certificate inherited.",
+  "m1": "M1 chart attachment is independent of signal timeframe. This full-history experiment uses H1 signals and M5 execution, not invented historical M1 ticks.",
+  "volume": "No volume gate; feed units and venue comparability unqualified."
+}
