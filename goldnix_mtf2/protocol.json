@@ -1,0 +1,154 @@
+{
+  "registered_utc": "2026-11-12T14:26:24.169069+00:00",
+  "authorization": "User: now do what ever it takes to pass step 6",
+  "status": "FINITE_ADAPTIVE_EXPLORATORY_ROUND",
+  "prior_registered_variants": 69,
+  "new_registered_variants": 12,
+  "cumulative_registered_variants": 81,
+  "holdout_performance_access": false,
+  "candidate_configs": [
+    {
+      "id": "U02",
+      "confirmation": "retest",
+      "stop_atr": 1.0,
+      "max_hold_minutes": 60,
+      "reward_r": null
+    },
+    {
+      "id": "U03",
+      "confirmation": "retest",
+      "stop_atr": 1.0,
+      "max_hold_minutes": 180,
+      "reward_r": 2.0
+    },
+    {
+      "id": "U04",
+      "confirmation": "retest",
+      "stop_atr": 1.0,
+      "max_hold_minutes": 360,
+      "reward_r": 3.0
+    },
+    {
+      "id": "U05",
+      "confirmation": "retest",
+      "stop_atr": 2.0,
+      "max_hold_minutes": 60,
+      "reward_r": null
+    },
+    {
+      "id": "U06",
+      "confirmation": "retest",
+      "stop_atr": 2.0,
+      "max_hold_minutes": 180,
+      "reward_r": 2.0
+    },
+    {
+      "id": "U07",
+      "confirmation": "retest",
+      "stop_atr": 2.0,
+      "max_hold_minutes": 360,
+      "reward_r": 3.0
+    },
+    {
+      "id": "U08",
+      "confirmation": "hold",
+      "stop_atr": 1.0,
+      "max_hold_minutes": 60,
+      "reward_r": null
+    },
+    {
+      "id": "U09",
+      "confirmation": "hold",
+      "stop_atr": 1.0,
+      "max_hold_minutes": 180,
+      "reward_r": 2.0
+    },
+    {
+      "id": "U10",
+      "confirmation": "hold",
+      "stop_atr": 1.0,
+      "max_hold_minutes": 360,
+      "reward_r": 3.0
+    },
+    {
+      "id": "U11",
+      "confirmation": "hold",
+      "stop_atr": 2.0,
+      "max_hold_minutes": 60,
+      "reward_r": null
+    },
+    {
+      "id": "U12",
+      "confirmation": "hold",
+      "stop_atr": 2.0,
+      "max_hold_minutes": 180,
+      "reward_r": 2.0
+    },
+    {
+      "id": "U13",
+      "confirmation": "hold",
+      "stop_atr": 2.0,
+      "max_hold_minutes": 360,
+      "reward_r": 3.0
+    }
+  ],
+  "data_manifest_sha256": "df399cfb7863f91341b1586bbfe7d7489118fdcde07fca66ddb3e6cd7b80d181",
+  "eras_exclusive_end": {
+    "A": [
+      "2005-06-01T00:00:00Z",
+      "2011-09-01T00:00:00Z"
+    ],
+    "B": [
+      "2011-09-01T00:00:00Z",
+      "2016-01-01T00:00:00Z"
+    ],
+    "C": [
+      "2016-01-01T00:00:00Z",
+      "2021-01-01T00:00:00Z"
+    ],
+    "D": [
+      "2021-01-01T00:00:00Z",
+      "2026-01-01T00:00:00Z"
+    ]
+  },
+  "base_feature_protocol_sha256": "df67f0716653650cd3bb16c98c4b28e62a72d3992800d5d76c5ffc524e2ca363",
+  "features": "Reuse unchanged U01 closed H1EMA50 slope3, M15EMA20 pullback, bid prices, 500-bar warmup, simple M5ATR14 and continuity/readiness; native indicator parity preserved.",
+  "confirmation_window_m5_bars": 6,
+  "buffer": "At M15 setup close t freeze max(closing spread,0.1*ATR14); level=setup high BUY / low SELL.",
+  "setup_invalidation": "A later completed M5 low below setup low-buffer for BUY, high above setup high+buffer for SELL, missing M5 bar, or changed closed H1 direction invalidates the setup. After breakout, close through opposite side of level-buffer also invalidates.",
+  "break": "First later M5 close beyond level+direction*buffer; never use same bar for later confirmation.",
+  "retest": "Within remaining six-bar expiry, later candle touches level band and closes beyond breakout threshold. A wick through the band is allowed only within original setup invalidation.",
+  "hold": "Within remaining six-bar expiry, later candle stays on or beyond the near side level-buffer and closes beyond breakout threshold; no touch required.",
+  "anti_chase": "Confirmation close and next executable-side entry open beyond level+direction*buffer and at most 1 frozen setupATR from level. If confirmed but untradeable, consume setup; no retry.",
+  "overlapping_setups": "Keep each setup until fixed expiry; one signal per setup, earliest setup wins same entry timestamp; one position/account daily halt applied later.",
+  "stop": "At entry: distance=max(stop_atr*previousClosedM5ATR, distance to previous closed executable-side low/high with 0.1ATR padding,0.50). BUY stop below bid, SELL stop above ask. Stop never changes.",
+  "entry_cost": "Actual entry spread nonnegative and <=min(2.0,0.20*stop distance).",
+  "cash_risk_cap_usd": 0.03,
+  "cash_risk_note": "(stop distance+actual entry spread)*0.01 USD per price unit <= USD0.03 (3USC); same cap for every variant, equal to U01 maximum planned loss at its spread ceiling. Minimum 0.01lot, no larger sizing. Gaps/slippage can exceed planned loss.",
+  "usd_per_price_unit": 0.01,
+  "account_usd": 20.0,
+  "lot_size": 0.01,
+  "daily_halt_r": -2.0,
+  "friday_no_entry_from_utc": "19:00",
+  "friday_flat_utc": "20:00",
+  "holiday_exclusion": true,
+  "fills": "BUY ask entry/bid exit, SELL bid entry/ask exit. Intrabar both-hit uses stop first, sensitivity target first. Adverse open gaps fill actual open; favorable target gaps fill target. Max-hold deadline or Friday flatten at first available executable open; no interpolated quote.",
+  "gap_rule": "Any >300-second observed interval while position open flags gap_risk; do not drop trades with a missing future quote.",
+  "boundary_rule": "Entry only before final era bar; force any still-open position out at final era bar close; never use next era prices. Stop/target times labelled by their candle open, exact intrabar second unknown; actual-open exits labelled exact observed bar open.",
+  "position_rule": "No entry index <= prior exit_index, one-bar conservative lockout at exit boundary as priorStep6.",
+  "costs": "Historical bid/ask spreads included; no unverified commission, financing or intrabar slippage invented. Report fixed-schedule extra 0.10R/0.25R costs separately. Six-hour holds may cross rollover; financing remains a limitation.",
+  "gates_sha256": "3c4c3af6caca1edd5ace3db0c3a4057ef7930c030adc50c1f8f4be4de80af6f5",
+  "screen": "All12 evaluated once stop-first/target-first with original G1/G4/G5/G6/G7/G8; ATR parity inherited only by checking exact core-source hashes and prior certificate. Record failures.",
+  "full_evaluation_selection": "At most two candidates passing every preliminary gate, ranked by cumulative81-trial bootstrap lower bound then candidateID; compute unchanged matched random G2/G3. Stop this registered batch after those full evaluations or if none qualifies.",
+  "baseline_draws": 200,
+  "baseline_sweeps": 20,
+  "baseline_seed": 20261114,
+  "bootstrap_resamples": 10000,
+  "bootstrap_seed": 20261114,
+  "monte_carlo_paths": 100000,
+  "monte_carlo_seed": 20261115,
+  "sampler_retention_excess_warning": 0.05,
+  "sampler_midpoint_difference_se_warning": 3.0,
+  "selection_warning": "Finite disclosed exploratory batch on reused history. Extreme bootstrap selection tail is diagnostic, not independent validation. Prior69 includes more uncounted earlier decisions.",
+  "approval": false
+}

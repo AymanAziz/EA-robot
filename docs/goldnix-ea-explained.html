@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Goldnix — Animasi Entry, SL & TP</title>
+<style>
+:root{--bg:#0b1118;--panel:#111c26;--line:#263646;--text:#e7eff6;--muted:#9aaebb;--blue:#7ebaff;--green:#73dfab;--red:#ff919a;--yellow:#efce82;--mono:ui-monospace,SFMono-Regular,Consolas,monospace}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}button,a,input{font:inherit;-webkit-tap-highlight-color:transparent}button{cursor:pointer;color:inherit}button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--blue);outline-offset:4px}a{color:var(--blue);text-decoration:none}a:hover{text-decoration:underline}.wrap{width:min(1180px,calc(100% - 48px));margin:auto}header{height:64px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:15px}.brand{font:700 12px var(--mono);letter-spacing:.15em;display:flex;gap:10px;align-items:center}.brand svg{width:23px;height:25px}header a{font-size:12px}.intro{display:flex;justify-content:space-between;gap:20px;align-items:center;margin:24px 0 18px}h1{font-size:30px;letter-spacing:-.045em;line-height:1.15;margin:0;font-weight:600}.intro p{margin:8px 0 0;font-size:13px;color:var(--muted)}.legend{display:flex;gap:18px;flex-wrap:wrap;font:11px var(--mono)}.legend span{display:flex;align-items:center;gap:7px}.dot{width:8px;height:8px;display:inline-block;border-radius:50%}.blue{color:var(--blue)}.green{color:var(--green)}.red{color:var(--red)}.yellow{color:var(--yellow)}
+.panel{border:1px solid var(--line);border-radius:14px;background:var(--panel);overflow:hidden}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:15px 19px;border-bottom:1px solid var(--line)}.group{display:flex;align-items:center;gap:7px;flex-wrap:wrap}.group-label{color:var(--muted);font:10px var(--mono);margin-right:4px}.choice{border:1px solid var(--line);background:#0d1720;border-radius:7px;padding:9px 13px;font-size:12px;min-height:38px}.choice:hover{background:#20303e}.choice.active{background:#7ebaff13;border-color:#7ebaff88;color:var(--blue)}.choice[data-outcome="tp"].active{background:#73dfab13;border-color:#73dfab88;color:var(--green)}.choice[data-outcome="sl"].active{background:#ff919a13;border-color:#ff919a88;color:var(--red)}.choice[data-outcome="fakeout"].active,.choice[data-outcome="risk"].active{background:#efce8213;border-color:#efce8288;color:var(--yellow)}.chart-top{padding:16px 20px 4px;display:flex;justify-content:space-between;align-items:center;gap:15px}.market{font:11px var(--mono);color:var(--muted)}.market b{color:var(--text);font-weight:500}.quote{font:12px var(--mono);white-space:nowrap}.quote span{color:var(--muted);font-size:10px;margin-right:8px}#chart-shell{width:100%;background:radial-gradient(ellipse at 35% 55%,#15304433,transparent 65%)}#chart{display:block;width:100%;height:420px;overflow:hidden}.chart-foot{display:flex;justify-content:space-between;padding:0 20px 13px;gap:15px;font:10px var(--mono);color:var(--muted)}.stages{display:grid;grid-template-columns:repeat(5,1fr);border-block:1px solid var(--line)}.stage{padding:11px 13px;font-size:11px;color:var(--muted);border-right:1px solid var(--line)}.stage:last-child{border:0}.stage b{font:10px var(--mono);margin-right:7px;color:#6d8293}.stage.active{background:#7ebaff0d;color:var(--blue)}.stage.active b{color:var(--blue)}.stage.done b{color:var(--green)}.stage.blocked{color:var(--yellow);background:#efce820b}.controls{padding:14px 19px;display:flex;align-items:center;gap:11px}.control{height:38px;min-width:40px;background:#1b2b37;border:1px solid #33495b;border-radius:7px;padding:0 12px;font-size:13px}.control:hover{border-color:var(--blue)}#play{background:var(--blue);border-color:var(--blue);color:#102438;min-width:96px;font-weight:650}.controls input{flex:1;min-width:50px;accent-color:var(--blue)}.clock{font:11px var(--mono);color:var(--muted);white-space:nowrap}#speed{font:11px var(--mono)}#all{font-size:11px;white-space:nowrap}#all.active{color:var(--blue);border-color:var(--blue)}.caption{display:flex;justify-content:space-between;gap:20px;align-items:center;padding:3px 20px 19px;min-height:72px}.caption h2{margin:0 0 4px;font-size:20px;line-height:1.2;letter-spacing:-.025em;font-weight:600}.caption p{margin:0;color:var(--muted);font-size:12px}.state{border:1px solid #3d5264;border-radius:7px;min-width:130px;padding:9px 13px;text-align:center;font:11px var(--mono);color:var(--blue)}.state[data-tone="tp"]{border-color:#397754;color:var(--green);background:#73dfab0b}.state[data-tone="sl"]{border-color:#85464e;color:var(--red);background:#ff919a0b}.state[data-tone="wait"]{border-color:#74613c;color:var(--yellow);background:#efce820b}.numbers{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:16px}.number{border:1px solid var(--line);border-radius:9px;padding:14px 18px;background:#0f1a24}.number small{display:block;color:var(--muted);font:10px var(--mono);margin-bottom:8px}.number strong{font:21px var(--mono);font-weight:500}.number .unit{font-size:11px;color:var(--muted)}.number p{margin:5px 0 0;font-size:10px;color:var(--muted)}.short-note{margin:15px 0;color:var(--muted);font-size:11px}.short-note strong{color:var(--text);font-weight:500}details{margin-top:16px;border:1px solid var(--line);border-radius:8px;padding:13px 16px;font-size:12px}summary{cursor:pointer;color:var(--muted)}.formula-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:17px}.formula-grid p{margin:7px 0;color:var(--muted);font-size:12px}.formula-grid b{color:var(--text);font-weight:500}.formula-grid code{font:11px/1.9 var(--mono);color:var(--blue)}footer{display:flex;justify-content:space-between;gap:20px;border-top:1px solid var(--line);padding:18px 0 24px;margin-top:22px;font-size:11px;color:var(--muted)}.sr-only{position:absolute;clip:rect(0,0,0,0);width:1px;height:1px;overflow:hidden;white-space:nowrap}.level-hit{animation:hit 1.5s ease-in-out infinite}.chart-stamp{animation:stamp .3s ease-out both}@keyframes hit{0%,100%{opacity:1}50%{opacity:.65}}@keyframes stamp{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}@media(max-width:850px){.toolbar{display:block}.toolbar>.group+.group{margin-top:12px}.intro{display:block}.legend{margin-top:15px}h1{font-size:28px}.controls{gap:8px}.stage b{display:block;margin-bottom:3px}.numbers{gap:10px}.number{padding:13px}.number strong{font-size:18px}}
+@media(max-width:600px){.wrap{width:calc(100% - 24px)}header{height:53px}.brand{font-size:10px;gap:7px}header a{font-size:10px}.intro{margin:19px 0 16px}h1{font-size:27px}.intro p{font-size:12px;max-width:330px}.legend{gap:16px;font-size:10px}.toolbar{padding:13px}.choice{padding:9px 10px;min-height:40px;font-size:11px}.group{gap:6px}.group-label{font-size:9px}.chart-top{padding:14px 12px 4px;gap:10px}.market{font-size:9px}.quote{font-size:11px}.quote span{font-size:9px;margin-right:5px}#chart{height:420px}.chart-foot{font-size:8px;padding:0 12px 12px;gap:9px}.stage{font-size:9px;padding:10px 5px;min-height:51px}.stage b{font-size:9px}.controls{padding:12px;display:grid;grid-template-columns:83px 36px 1fr 43px;gap:8px}.control{min-width:0;height:36px;padding:0 8px}#play{min-width:0;font-size:11px}#progress{grid-row:2;grid-column:1/4;width:100%;margin:5px 0}.clock{grid-column:4;grid-row:2;font-size:9px}.controls #all{grid-column:3;grid-row:1}.controls #speed{grid-column:4;grid-row:1;font-size:10px}.caption{display:block;padding:3px 13px 16px;min-height:135px}.caption h2{font-size:19px}.caption p{font-size:12px;min-height:34px}.state{margin-top:12px;font-size:11px;padding:9px;min-width:0}.numbers{grid-template-columns:1fr 1fr;gap:10px;margin-top:13px}.number{padding:13px}.number small{font-size:9px;margin-bottom:7px}.number strong{font-size:20px}.short-note{font-size:10px}.formula-grid{grid-template-columns:1fr;gap:8px}footer{display:block;font-size:10px}footer a{display:block;margin-top:9px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><div class="brand"><svg viewBox="0 0 28 29" aria-hidden="true"><path d="M5 4v20M14 1v27M23 7v19" stroke="#7ebaff" stroke-width="1.5"/><path d="M2 9h6v10H2zm9-4h6v14h-6zm9 9h6v8h-6z" fill="#7ebaff"/></svg>GOLDNIX / M1</div><a href="goldnix-ea-guide-detailed.html">Penerangan Step 1–8 ↗</a></header>
+<div class="intro"><div><h1>Entry. Stop-loss. Take-profit.</h1><p>Pilih contoh. Tengok harga bergerak, di mana masuk, dan di mana trade ditutup.</p></div><div class="legend" aria-label="Warna level"><span class="blue"><i class="dot" style="background:var(--blue)"></i>ENTRY</span><span class="red"><i class="dot" style="background:var(--red)"></i>STOP-LOSS</span><span class="green"><i class="dot" style="background:var(--green)"></i>TAKE-PROFIT</span></div></div>
+<main>
+<div class="panel">
+<div class="toolbar">
+<div class="group" role="group" aria-label="Arah trade"><span class="group-label">ARAH</span><button class="choice active" data-side="buy" aria-pressed="true">↑ BUY</button><button class="choice" data-side="sell" aria-pressed="false">↓ SELL</button></div>
+<div class="group" role="group" aria-label="Hasil simulasi"><span class="group-label">CONTOH</span><button class="choice active" data-outcome="tp" aria-pressed="true">Kena TP</button><button class="choice" data-outcome="sl" aria-pressed="false">Kena SL</button><button class="choice" data-outcome="fakeout" aria-pressed="false">Setup tak jadi</button><button class="choice" data-outcome="risk" aria-pressed="false">Risk terlalu besar</button></div>
+</div>
+<div class="chart-top"><div class="market"><b>XAUUSD.c · M1</b> / SIMULASI</div><div class="quote"><span id="quote-label">Midpoint</span><b id="quote-price">3913.50</b></div></div>
+<div id="chart-shell"><svg id="chart" role="img" aria-labelledby="chart-title chart-desc"><title id="chart-title">Animasi entry, stop-loss dan take-profit</title><desc id="chart-desc">Simulasi BUY: entry biru, stop-loss merah di bawah, take-profit hijau di atas. Harga bergerak sehingga TP atau SL disentuh, lalu trade ditutup.</desc><g id="grid"></g><g id="zones"></g><g id="candles"></g><g id="levels"></g><g id="path"></g><g id="annotations"></g></svg></div>
+<div class="chart-foot"><span>← 20 candle sebelum signal</span><span id="price-side-note">Selepas entry: garisan harga = Bid</span><span>Masa dipercepat →</span></div>
+<div class="stages" aria-label="Urutan trade"><div class="stage active"><b>01</b>Signal</div><div class="stage"><b>02</b>Pelan SL / TP</div><div class="stage"><b>03</b>Entry + SL / TP</div><div class="stage"><b>04</b>Harga bergerak</div><div class="stage"><b>05</b>Tutup / tunggu</div></div>
+<div class="controls"><button class="control" id="play" aria-label="Pause animation">Ⅱ Pause</button><button class="control" id="replay" aria-label="Replay animation">↺</button><label class="sr-only" for="progress">Progress animasi</label><input type="range" min="0" max="1000" value="0" id="progress"><span class="clock" id="clock">00 / 20s</span><button class="control" id="speed" aria-label="Change animation speed">1×</button><button class="control" id="all" aria-pressed="false">▶ Main semua</button></div>
+<div class="caption"><div aria-live="polite"><h2 id="caption-title">Tunggu candle tutup.</h2><p id="caption-copy">Wick sahaja belum cukup. Close mesti pecah channel.</p></div><div class="state" id="state" data-tone="wait" aria-live="polite">BELUM ENTRY</div></div>
+</div>
+<div class="numbers">
+<div class="number"><small>SAIZ TRADE</small><strong>0.01 <span class="unit">lot</span></strong><p>0.01 oz pada kontrak demo ini</p></div>
+<div class="number"><small id="risk-label">RISIKO DIRANCANG</small><strong id="risk-number">4.50 <span class="unit">USC</span></strong><p id="risk-note">Had EA: 5 USC = $0.05</p></div>
+<div class="number"><small>STATUS POSISI</small><strong id="position">FLAT</strong><p id="position-note">Belum ada order</p></div>
+<div class="number"><small id="pnl-label">P/L SIMULASI</small><strong id="pnl">0.00 <span class="unit">USC</span></strong><p id="pnl-note">Bukan hasil trade sebenar</p></div>
+</div>
+<p class="short-note"><strong>Semua harga dan laluan di sini ialah ilustrasi strategi biasa.</strong> Bukan replay trade sebenar. Anggaran P/L tanpa fi/slippage; gap boleh menyebabkan fill melepasi SL.</p>
+<details><summary>Nak lihat kiraan level ini?</summary><div class="formula-grid"><div><b>Contoh biasa: ATR 2.00 · spread 0.50</b><p>Jarak D = max(2 × ATR, 0.50) = 4.00.</p><code>BUY: Entry = Ask 3916.00<br>SL = Bid 3915.50 − 4 = 3911.50<br>TP = Bid 3915.50 + 12 = 3927.50</code></div><div><b>SELL terbalik, guna Ask sebagai anchor</b><p>Risiko termasuk spread: (4 + 0.50) × 0.01 oz = $0.045 = 4.50 USC.</p><code>SELL: Entry = Bid 3915.50<br>SL = Ask 3916.00 + 4 = 3920.00<br>TP = Ask 3916.00 − 12 = 3904.00</code></div></div><p style="color:var(--muted)">TP ialah 3 × D dari harga anchor; spread menjadikan ganjaran bersih kurang daripada nisbah 3:1. Contoh “risk terlalu besar” guna ATR 3, D 6 dan risiko 6.50 USC, jadi EA tidak hantar order. Semakan akaun, sesi, margin, quote dan had harian dianggap lulus dalam contoh lain.</p><p style="color:var(--muted)">Trade pemeriksaan demo 11:00 menggunakan trigger dan had 4 USC yang berasingan. Animasi ini menunjukkan strategi channel biasa, bukan meniru pemeriksaan itu.</p></details>
+</main>
+<footer><span>Simulasi pendidikan · butang ini tidak menghantar order.<br>EA M1 masih eksperimen demo; kelayakan prestasi penuh belum selesai.</span><a href="goldnix-ea-guide-detailed.html">Bukti ujian & Step 1–8 →</a></footer>
+</div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const C={blue:'#7ebaff',green:'#73dfab',red:'#ff919a',yellow:'#efce82',muted:'#8097a8',ink:'#e7eff6',line:'#283b4b'};
+let side='buy',outcome='tp',progress=0,playing=!reduced,speed=1,lastTime=0,lastPhase=-1,sequence=false,sequenceIndex=0,endHold=0,visible=true,geometry=null;
+const duration=20,sequenceCases=[['buy','tp'],['buy','sl'],['sell','tp'],['sell','sl'],['buy','fakeout'],['buy','risk']];
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v)),mix=(a,b,t)=>a+(b-a)*t,fmt=v=>v.toFixed(2);
+const mirror=p=>7831.5-p;
+const oldCloses=[3913.0,3912.6,3913.1,3913.5,3913.2,3913.8,3914.0,3913.7,3913.9,3913.5,3912.9,3912.4,3912.7,3913.1,3912.8,3913.3,3913.7,3913.3,3913.9,3913.5];
+function params(){
+ const d=outcome==='risk'?6:4,atr=d/2,spread=.5,bid=3915.5,ask=3916;
+ return {d,atr,spread,bid,ask,entry:side==='buy'?ask:bid,anchor:side==='buy'?bid:ask,sl:side==='buy'?bid-d:ask+d,tp:side==='buy'?bid+3*d:ask-3*d,risk:(d+spread),direction:side==='buy'?1:-1,canEnter:outcome==='tp'||outcome==='sl'};
+}
+function getGeometry(){
+ const width=Math.max(300,$('chart-shell').getBoundingClientRect().width),height=420;
+ const labelWidth=width<600?124:158,left=width<600?14:24,labelX=width-labelWidth-8,right=labelX-13;
+ const p=params(),min=Math.min(p.sl,p.tp,3911.5)-1.8,max=Math.max(p.sl,p.tp,3919.5)+1.8;
+ const top=34,bottom=height-37,y=v=>top+(max-v)/(max-min)*(bottom-top);
+ return {width,height,left,right,labelX,labelWidth,top,bottom,y,xSignal:left+(right-left)*.39,xFuture:right-11,min,max};
+}
+function makeCandle(x,o,h,l,c,color,width=6,opacity=1){
+ const g=geometry,top=Math.min(g.y(o),g.y(c)),height=Math.max(1.5,Math.abs(g.y(o)-g.y(c)));
+ return '<g opacity="'+opacity+'"><line x1="'+x+'" x2="'+x+'" y1="'+g.y(h)+'" y2="'+g.y(l)+'" stroke="'+color+'" stroke-width="1.2"/><rect x="'+(x-width/2)+'" y="'+top+'" width="'+width+'" height="'+height+'" rx="1" fill="'+color+'"/></g>';
+}
+function phaseAt(t){return t<.22?0:t<.34?1:t<.46?2:t<.92?3:4;}
+function drawGrid(){
+ geometry=getGeometry();const g=geometry,p=params();$('chart').setAttribute('viewBox','0 0 '+g.width+' '+g.height);
+ let html='';
+ for(let i=0;i<7;i++){const yy=g.top+(g.bottom-g.top)*i/6;html+='<line x1="'+g.left+'" x2="'+g.right+'" y1="'+yy+'" y2="'+yy+'" stroke="'+C.line+'" stroke-width=".7"/>';}
+ const upper=side==='buy'?3914.5:3919.5,lower=side==='buy'?3912:3917;
+ const xEnd=g.xSignal+10;
+ html+='<rect x="'+g.left+'" y="'+g.y(upper)+'" width="'+(xEnd-g.left)+'" height="'+(g.y(lower)-g.y(upper))+'" fill="#efce820b"/>';
+ [upper,lower].forEach(v=>{html+='<line x1="'+g.left+'" x2="'+xEnd+'" y1="'+g.y(v)+'" y2="'+g.y(v)+'" stroke="'+C.yellow+'" stroke-dasharray="3 4" opacity=".5"/>';});
+ html+='<line x1="'+(g.xSignal-9)+'" x2="'+(g.xSignal-9)+'" y1="'+g.top+'" y2="'+g.bottom+'" stroke="#405a6b" stroke-dasharray="3 5"/>';
+ html+='<text x="'+g.left+'" y="'+(g.height-13)+'" fill="'+C.muted+'" font-size="9" font-family="monospace">20 candle</text>';
+ html+='<text x="'+(g.xSignal+8)+'" y="'+(g.height-13)+'" fill="'+C.muted+'" font-size="9" font-family="monospace">Selepas signal →</text>';
+ $('grid').innerHTML=html;
+ $('chart-desc').textContent=side.toUpperCase()+': entry '+fmt(p.entry)+', stop-loss '+fmt(p.sl)+', take-profit '+fmt(p.tp)+'. Laluan harga ialah simulasi. Contoh '+outcome+'.';
+}
+function level(type,value,planned,drawAmount,hit){
+ const g=geometry,yy=g.y(value),color=type==='sl'?C.red:type==='tp'?C.green:C.blue;
+ const title=type==='sl'?'STOP-LOSS':type==='tp'?'TAKE-PROFIT':'ENTRY '+side.toUpperCase();
+ const xStart=g.xSignal-8,xEnd=mix(xStart,g.labelX-7,drawAmount),opacity=planned?.45:1;
+ return '<g data-level="'+type+'" data-price="'+fmt(value)+'" data-active="'+(!planned)+'" opacity="'+opacity+'"'+(hit?' class="level-hit"':'')+'><line x1="'+xStart+'" x2="'+xEnd+'" y1="'+yy+'" y2="'+yy+'" stroke="'+color+'" stroke-width="'+(hit?2.5:1.4)+'"'+(planned?' stroke-dasharray="4 4"':'')+'/>'+
+ '<rect x="'+g.labelX+'" y="'+(yy-24)+'" width="'+(g.labelWidth-2)+'" height="48" rx="7" fill="'+(hit?(type==='tp'?'#18432f':'#482631'):'#101c27')+'" stroke="'+color+'" stroke-width="'+(hit?1.6:1)+'"'+(planned?' stroke-dasharray="4 4"':'')+'/>'+
+ '<text x="'+(g.labelX+11)+'" y="'+(yy-6)+'" font-family="monospace" font-size="'+(g.width<600?9:10)+'" fill="'+color+'">'+title+'</text>'+
+ '<text x="'+(g.labelX+11)+'" y="'+(yy+14)+'" font-family="monospace" font-size="'+(g.width<600?17:19)+'" fill="'+color+'">'+fmt(value)+'</text></g>';
+}
+function placeholderLevels(){
+ const g=geometry;let h='';
+ [['TP',78],['ENTRY',210],['SL',342]].forEach(a=>{h+='<g data-level="none"><rect x="'+g.labelX+'" y="'+(a[1]-24)+'" width="'+(g.labelWidth-2)+'" height="48" rx="7" fill="#101a23" stroke="#314555" stroke-dasharray="4 4"/><text x="'+(g.labelX+11)+'" y="'+(a[1]-5)+'" font-size="9" font-family="monospace" fill="'+C.muted+'">'+a[0]+' BELUM ADA</text><text x="'+(g.labelX+11)+'" y="'+(a[1]+15)+'" font-size="18" font-family="monospace" fill="'+C.muted+'">—</text></g>';});
+ return h;
+}
+function pathPrices(){
+ const base=outcome==='sl'?[3915.5,3916.9,3915.8,3916.3,3914.4,3915.2,3913.1,3912.0,3912.5,3911.5]:[3915.5,3917.2,3916.4,3919.0,3918.5,3922.2,3921.6,3924.0,3923.2,3927.5];
+ return side==='sell'?base.map(mirror):base;
+}
+function stateAt(t){
+ const p=params(),phase=phaseAt(t),entered=p.canEnter&&t>=.34,exited=entered&&t>=.92;
+ let price=3913.5;
+ if(t<.22){const f=clamp(t/.22),end=outcome==='fakeout'?3914:3915.75;price=f<.65?mix(3913.5,3916.3,f/.65):mix(3916.3,end,(f-.65)/.35);}
+ else price=outcome==='fakeout'?3914:3915.75;
+ if(side==='sell')price=mirror(price);
+ let traversal=0;
+ if(entered){const prices=pathPrices();traversal=clamp((t-.46)/.46);const idx=traversal*(prices.length-1),i=Math.min(prices.length-2,Math.floor(idx));price=mix(prices[i],prices[i+1],idx-i);}
+ return {...p,phase,entered,exited,traversal,price,pnl:entered?p.direction*(price-p.entry):0,status:exited?'CLOSED':entered?'OPEN':'FLAT',outcome,side};
+}
+function updateCaption(s){
+ const noSignal=outcome==='fakeout',blocked=outcome==='risk';
+ let title,copy,badge,tone='wait';
+ if(s.phase===0){title='Tunggu candle tutup.';copy='Wick sahaja belum cukup. Close mesti pecah channel.';badge='BELUM ENTRY';}
+ else if(noSignal){title='Setup tak jadi — tiada entry.';copy='Wick keluar, tetapi close masuk semula dalam channel. SL / TP tidak dihantar.';badge='NO TRADE';}
+ else if(blocked){title='Signal ada, tetapi risk terlalu besar.';copy='Cadangan risiko 6.50 USC > had 5 USC. Semua level putus-putus ini dibatalkan.';badge='ORDER TIDAK DIHANTAR';}
+ else if(s.phase===1){title='Letak pelan SL dan TP.';copy=side==='buy'?'BUY: SL di bawah, TP di atas. Biru ialah harga entry yang dirancang.':'SELL: SL di atas, TP di bawah. Biru ialah harga entry yang dirancang.';badge='PELAN SAHAJA';}
+ else if(s.phase===2){title='Entry, SL dan TP dihantar bersama.';copy='0.01 lot dibuka. Stop-loss merah dan take-profit hijau sudah ditetapkan.';badge=side.toUpperCase()+' OPEN';tone='open';}
+ else if(s.phase===3){title=outcome==='sl'?'Harga berpatah balik.':'Harga bergerak ke arah target.';copy=side==='buy'?'Untuk BUY, perhatikan harga Bid. SL dan TP kekal pada level asal.':'Untuk SELL, perhatikan harga Ask. SL dan TP kekal pada level asal.';badge=side.toUpperCase()+' OPEN';tone='open';}
+ else{title=outcome==='tp'?'TP kena — trade ditutup.':'SL kena — trade ditutup.';copy=outcome==='tp'?'Harga menyentuh garisan hijau. Simulasi tutup pada take-profit.':'Harga menyentuh garisan merah. Simulasi tutup pada stop-loss.';badge=outcome==='tp'?'TAKE-PROFIT HIT':'STOP-LOSS HIT';tone=outcome;}
+ $('caption-title').textContent=title;$('caption-copy').textContent=copy;$('state').textContent=badge;$('state').dataset.tone=tone;
+ document.querySelectorAll('.stage').forEach((el,i)=>{el.classList.toggle('active',i===s.phase);el.classList.toggle('done',i<s.phase);el.classList.toggle('blocked',(noSignal||blocked)&&s.phase>0&&i===s.phase);});
+}
+function render(){
+ if(!geometry)return;
+ const g=geometry,s=stateAt(progress),phase=s.phase;
+ if(lastPhase!==phase){lastPhase=phase;updateCaption(s);}
+ let candles='',levels='',zones='',path='',annotations='';
+ const historyEnd=g.xSignal-20,dx=(historyEnd-g.left)/20,cw=clamp(dx*.55,1.4,8);
+ oldCloses.forEach((c,i)=>{let o=i?oldCloses[i-1]:3913.2,h=Math.max(c,o)+.18,l=Math.min(c,o)-.18;if(i===6)h=3914.5;if(i===11)l=3912;if(side==='sell'){o=mirror(o);c=mirror(c);const nh=mirror(l);l=mirror(h);h=nh;}candles+=makeCandle(g.left+dx*(i+.5),o,h,l,c,c>=o?'#5c9e88':'#a56e79',cw,.65);});
+ let candidateOpen=3913.5,candidateClose=progress<.22?(side==='buy'?s.price:mirror(s.price)):outcome==='fakeout'?3914:3915.75;
+ let hi=Math.max(candidateOpen,candidateClose,progress>.145?3916.3:candidateClose),lo=3913;
+ if(side==='sell'){candidateOpen=mirror(candidateOpen);candidateClose=mirror(candidateClose);const nh=mirror(lo);lo=mirror(hi);hi=nh;}
+ candles+=makeCandle(g.xSignal,candidateOpen,hi,lo,candidateClose,progress<.22?C.yellow:outcome==='fakeout'?C.yellow:C.blue,g.width<600?7:11);
+ if(outcome==='fakeout'||progress<.22)levels=placeholderLevels();
+ else{
+  const planned=!s.entered,amount=clamp((progress-.22)/.1),fillAlpha=planned?.025:.065;
+  const xStart=g.xSignal-8,w=g.labelX-xStart-7;
+  zones='<rect x="'+xStart+'" y="'+Math.min(g.y(s.entry),g.y(s.tp))+'" width="'+w+'" height="'+Math.abs(g.y(s.entry)-g.y(s.tp))+'" fill="'+C.green+'" opacity="'+fillAlpha+'"/><rect x="'+xStart+'" y="'+Math.min(g.y(s.entry),g.y(s.sl))+'" width="'+w+'" height="'+Math.abs(g.y(s.entry)-g.y(s.sl))+'" fill="'+C.red+'" opacity="'+fillAlpha+'"/>';
+  levels=level('tp',s.tp,planned,amount,s.exited&&outcome==='tp')+level('sl',s.sl,planned,amount,s.exited&&outcome==='sl')+level('entry',s.entry,planned,amount,false);
+ }
+ if(s.entered){
+  const prices=pathPrices(),startX=g.xSignal+10,step=(g.xFuture-startX)/(prices.length-1),at=s.traversal*(prices.length-1),n=Math.floor(at),points=[];
+  for(let i=0;i<=n;i++)points.push([startX+step*i,g.y(prices[i])]);
+  if(n<prices.length-1)points.push([startX+step*at,g.y(s.price)]);
+  const color=s.exited?(outcome==='tp'?C.green:C.red):C.blue;
+  path='<polyline data-price-path="true" points="'+points.map(p=>p.join(',')).join(' ')+'" fill="none" stroke="'+color+'" stroke-width="2.2" stroke-linejoin="round"/>';
+  for(let i=1;i<=Math.ceil(at);i++){
+   const end=i<=n?prices[i]:s.price,o=prices[i-1],x=startX+step*(i<=n?i:at);
+   const high=Math.min(Math.max(s.sl,s.tp),Math.max(o,end)+.10),low=Math.max(Math.min(s.sl,s.tp),Math.min(o,end)-.10);
+   candles+=makeCandle(x,o,high,low,end,end>=o?'#73dfab':'#ff919a',clamp(step*.38,2,9),.42);
+  }
+  const dotX=startX+step*at,dotY=g.y(s.price);
+  path+='<line x1="'+dotX+'" x2="'+(g.labelX-7)+'" y1="'+dotY+'" y2="'+dotY+'" stroke="'+color+'" opacity=".35" stroke-dasharray="2 4"/><circle cx="'+dotX+'" cy="'+dotY+'" r="9" fill="'+color+'" opacity=".12"/><circle data-price-dot="true" data-price="'+fmt(s.price)+'" cx="'+dotX+'" cy="'+dotY+'" r="4" fill="'+color+'"/>';
+  const entryX=g.xSignal+4,entryY=g.y(s.entry);
+  annotations+='<circle data-entry-filled="true" cx="'+entryX+'" cy="'+entryY+'" r="4" fill="'+C.blue+'" stroke="#102030" stroke-width="2"/>';
+ }
+ else{
+  path='<circle data-price-dot="true" data-price="'+fmt(s.price)+'" cx="'+g.xSignal+'" cy="'+g.y(s.price)+'" r="3" fill="'+C.yellow+'"/>';
+ }
+ if(progress>=.34){
+  const msg=outcome==='fakeout'?'TIADA ENTRY':outcome==='risk'?'RISK > HAD':s.exited?(outcome==='tp'?'TP KENA ✓':'SL KENA ×'):'SL + TP AKTIF';
+  const color=outcome==='fakeout'||outcome==='risk'?C.yellow:s.exited?(outcome==='tp'?C.green:C.red):C.blue;
+  const font=g.width<600?10:12,stampWidth=g.width<600?105:145;
+  annotations+='<g data-outcome-stamp="true"><rect x="'+g.left+'" y="5" width="'+stampWidth+'" height="24" rx="5" fill="#0e1923" stroke="'+color+'" opacity=".95"/><text x="'+(g.left+9)+'" y="21" font-family="monospace" font-size="'+font+'" fill="'+color+'">'+msg+'</text></g>';
+ }
+ $('zones').innerHTML=zones;$('candles').innerHTML=candles;$('levels').innerHTML=levels;$('path').innerHTML=path;$('annotations').innerHTML=annotations;
+ $('quote-label').textContent=s.entered?(side==='buy'?'Harga Bid':'Harga Ask'):'Midpoint';$('quote-price').textContent=fmt(s.price);
+ $('progress').value=Math.round(progress*1000);$('clock').textContent=String(Math.floor(progress*duration)).padStart(2,'0')+' / 20s';
+ $('risk-number').innerHTML=fmt(s.risk)+' <span class="unit">USC</span>';$('risk-number').style.color=outcome==='risk'?C.red:C.ink;
+ $('risk-label').textContent=outcome==='fakeout'?'ANGGARAN JIKA ADA SETUP':outcome==='risk'?'CADANGAN — DIBATALKAN':'RISIKO DIRANCANG';
+ $('risk-note').textContent=outcome==='fakeout'?'Tiada risiko dibuka':'Had EA: 5 USC = $0.05';
+ $('position').textContent=s.status;$('position').style.color=s.exited?(outcome==='tp'?C.green:C.red):s.entered?C.blue:C.muted;
+ $('position-note').textContent=s.exited?'Trade sudah tutup':s.entered?'SL dan TP sudah aktif':'Tiada order dihantar';
+ const sign=s.pnl>0?'+':'',pnlColor=s.pnl>0?C.green:s.pnl<0?C.red:C.ink;
+ $('pnl').innerHTML=sign+fmt(s.pnl)+' <span class="unit">USC</span>';$('pnl').style.color=pnlColor;
+ $('pnl-label').textContent=s.exited?'P/L AKHIR SIMULASI':s.entered?'P/L TERAPUNG SIMULASI':'P/L SIMULASI';
+ $('pnl-note').textContent=s.entered?(s.pnl>0?'+':'')+'$'+(s.pnl/100).toFixed(3)+' · tanpa fi/slippage':'Bukan hasil trade sebenar';
+ $('chart').dataset.position=s.status;$('chart').dataset.plotOutcome=outcome;$('chart').dataset.plotSide=side;
+}
+function setPlay(on){playing=on;$('play').textContent=on?'Ⅱ Pause':'▶ Main';$('play').setAttribute('aria-label',on?'Pause animation':'Play animation');}
+function stopSequence(){sequence=false;endHold=0;$('all').classList.remove('active');$('all').textContent='▶ Main semua';$('all').setAttribute('aria-pressed','false');}
+function reset(run=!reduced){progress=0;lastPhase=-1;endHold=0;drawGrid();render();setPlay(run);}
+function select(nextSide,nextOutcome,manual=true){
+ side=nextSide;outcome=nextOutcome;if(manual)stopSequence();
+ document.querySelectorAll('[data-side]').forEach(b=>{const a=b.dataset.side===side;b.classList.toggle('active',a);b.setAttribute('aria-pressed',String(a));});
+ document.querySelectorAll('[data-outcome]').forEach(b=>{const a=b.dataset.outcome===outcome;b.classList.toggle('active',a);b.setAttribute('aria-pressed',String(a));});
+ $('price-side-note').textContent='Selepas entry: garisan harga = '+(side==='buy'?'Bid':'Ask');reset(manual?!reduced:true);
+}
+document.querySelectorAll('[data-side]').forEach(b=>b.addEventListener('click',()=>select(b.dataset.side,outcome)));
+document.querySelectorAll('[data-outcome]').forEach(b=>b.addEventListener('click',()=>select(side,b.dataset.outcome)));
+$('play').addEventListener('click',()=>{if(progress>=1){reset(true);return;}setPlay(!playing);});
+$('replay').addEventListener('click',()=>{stopSequence();reset(!reduced);});
+$('progress').addEventListener('input',e=>{stopSequence();setPlay(false);progress=Number(e.target.value)/1000;render();});
+$('speed').addEventListener('click',()=>{speed=speed===1?.5:speed===.5?1.5:1;$('speed').textContent=speed+'×';});
+$('all').addEventListener('click',()=>{if(sequence){stopSequence();return;}sequence=true;sequenceIndex=0;select(...sequenceCases[0],false);$('all').classList.add('active');$('all').textContent='Ⅱ Henti siri';$('all').setAttribute('aria-pressed','true');});
+window.addEventListener('keydown',e=>{if(e.key==='Escape'){stopSequence();setPlay(false);}});
+new ResizeObserver(()=>{drawGrid();render();}).observe($('chart-shell'));
+new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;},{threshold:.05}).observe($('chart-shell'));
+function frame(now){
+ if(!lastTime)lastTime=now;const dt=Math.min((now-lastTime)/1000,.1);lastTime=now;
+ if(playing&&visible&&!document.hidden){
+  if(progress<1){progress=Math.min(1,progress+dt*speed/duration);render();}
+  else if(sequence){endHold+=dt;if(endHold>=2.8){sequenceIndex++;if(sequenceIndex>=sequenceCases.length){stopSequence();setPlay(false);}else select(...sequenceCases[sequenceIndex],false);}}
+  else setPlay(false);
+ }
+ requestAnimationFrame(frame);
+}
+window.goldnixAnimation={getState:()=>({...stateAt(progress),progress,playing,sequence,speed}),levelsToPixels:()=>({sl:geometry.y(params().sl),entry:geometry.y(params().entry),tp:geometry.y(params().tp)}),select};
+drawGrid();render();setPlay(!reduced);requestAnimationFrame(frame);
+})();
+</script>
+</body></html>

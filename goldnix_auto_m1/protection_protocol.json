@@ -1,0 +1,80 @@
+{
+  "id": "M1_PROFIT_PROTECTION_P01",
+  "authorization": "User requested applying profit protection and multiple tests on the existing demo EA.",
+  "status": "implementation candidate, no profitability qualification",
+  "entry_strategy": "unchanged M1 channel20; BUY and SELL mirrored",
+  "activation": "Observed executable gross profit >= max(0.5 * original entry-to-SL risk, 2 * cost-price reserve + 2 ticks)",
+  "floor": "max(50% of highest observed executable gross profit, cost-price reserve + 1 tick)",
+  "reserve_usc": 0.2,
+  "reserve_note": "Fixed extra execution reserve, not a guarantee of realized net profit; include known entry charges twice and negative accrued swap in addition.",
+  "decision_clock": "fresh symbol quote, at most once per timer second; BUY uses Bid, SELL uses Ask",
+  "stop": "Only tighten, retain original TP, respect tick grid, stops/freeze constraints, require broker readback",
+  "minimum_improvement": "max(1 tick, 0.05 * original entry-to-SL risk)",
+  "floor_breach": "After activation, request an early market close if current executable price breaches the recorded profit floor; retain SL during failed requests and retry with bounded frequency",
+  "structure_exit": "Not enabled: no validated causal structure definition or MTF module exists in this EA. Profit-floor breach supplies the implemented reversal protection.",
+  "recovery": "Persist original SL/TP, observed peak, accepted SL and requested close per position. Preserve existing account/day risk state and recovery-close policy.",
+  "scope": "One existing owned demo position at a time, no added entry attempts or partial closes",
+  "verification_seams": {
+    "policy": "Shared production planner: activation, monotonic floor, mirrored Bid/Ask and broker distances; cannot prove broker fills.",
+    "journal": "Native durable record: corruption, restart and identity isolation; cannot guarantee operating-system survival of hardware failure.",
+    "execution": "Native tester uses the production manager against CTrade and broker-model positions; generated historical ticks do not establish real fills or profitability.",
+    "deployment": "Native compilation, original policy regressions, installed-source hashes, preserved day budget, fresh demo status; does not forecast trading returns."
+  },
+  "evaluation": "Keep this one declared setting. Report failures and early exits that miss later TP; do not optimize thresholds against the reviewed single execution-check trade.",
+  "entry_contract": {
+    "timeframe": "M1 only; explicit PERIOD_M1, independent of displayed chart",
+    "warmup_completed_bars": 100,
+    "signal": "Midpoint close of last complete bar strictly above previous 20 midpoint highs: BUY; below previous 20 midpoint lows: SELL; equal: no entry",
+    "atr": "Simple mean of 14 midpoint true ranges from completed quote-derived bars",
+    "stop_distance": "D=max(2*ATR,0.50); BUY SL=entry Bid-D, SELL SL=entry Ask+D",
+    "target": "BUY TP=entry Bid+3D; SELL TP=entry Ask-3D",
+    "entry_side": "BUY Ask, SELL Bid",
+    "lot": 0.01,
+    "exposure_oz": 0.01,
+    "planned_risk_usc_max": 5,
+    "risk_check": "Both signal-close nominal estimate and actual entry-side OrderCalcProfit must fit; initial loss must be negative",
+    "spread_ceiling": "signal closing Ask-Bid <= 0.30*ATR",
+    "freshness": "New completed M1 only; entry within first 10 seconds after close, symbol quote <=3 seconds old; no startup/catch-up entries",
+    "one_position": "Any account position/order blocks new entry; owned magic/identity validated before management",
+    "daily_entry_attempts_max": 7,
+    "daily_equity_loss_usc": 10,
+    "daily_realized_r_entry_halt": -2,
+    "day_boundary": "UTC+8 Malaysia; rollover only when flat and reconciled; fatal halt never reset",
+    "r_reporting": "signed (actual exit-actual fill)/original D; cost-inclusive broker P/L reported separately",
+    "session": "Current broker schedule; no entry in last120sec; flatten in close buffer; Friday no entry>=19UTC and flatten>=20UTC",
+    "holidays": "Dec24-26, Jan1, US Thanksgiving, Good Friday",
+    "one_time_execution_check": "Previously consumed; not rearmed and excluded from strategy qualification",
+    "clock": "Observed broker offset per session must be UTC+2 or UTC+3 and synchronized; full historical clock/session metadata required"
+  },
+  "qualification_contract": {
+    "eras_exclusive_end": {
+      "A": [
+        "2005-06-01T00:00:00Z",
+        "2011-09-01T00:00:00Z"
+      ],
+      "B": [
+        "2011-09-01T00:00:00Z",
+        "2016-01-01T00:00:00Z"
+      ],
+      "C": [
+        "2016-01-01T00:00:00Z",
+        "2021-01-01T00:00:00Z"
+      ],
+      "D": [
+        "2021-01-01T00:00:00Z",
+        "2026-01-01T00:00:00Z"
+      ]
+    },
+    "gates_path": "goldnix/gates/rules.yaml",
+    "gates_changed": false,
+    "baseline_draws_per_era": 200,
+    "bootstrap_month_blocks_resamples": 10000,
+    "monte_carlo_one_year_paths": 100000,
+    "baseline": "Matched BUY/SELL counts; same profit protection, quote eligibility, session/day/position envelope; independent random schedules",
+    "data_required": "Validated Bid/Ask ticks or adequate quote sequence to reproduce one-second management, plus broker price/volume grid, stops/freeze, costs, clocks/sessions and missing-data coverage",
+    "sensitivity": "Cost/spread, execution delay, missing-quote and same-bar order diagnostics; diagnostics cannot select a winning replacement candidate",
+    "holdout": "Do not access for qualification until a matching in-sample freeze exists. Previously consumed 2026 history is not fresh evidence. New prospective capture is not automatically a qualifying holdout.",
+    "step8": "Requires Steps6+7 and >=95% agreement of actual strategy trade lists against independent reference on identical broker quotes. Alternating fixture entries are excluded.",
+    "search_history": "At least82 prior registered historical strategy variants; M1 ports/protection cannot inherit an earlier numerical pass or pretend to be the first search."
+  }
+}

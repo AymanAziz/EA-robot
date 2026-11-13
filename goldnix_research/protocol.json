@@ -1,0 +1,236 @@
+{
+  "account_usd": 20.0,
+  "baseline_draws": 200,
+  "baseline_seed": 20261110,
+  "baseline_sweeps": 20,
+  "bootstrap_resamples": 10000,
+  "bootstrap_seed": 20261110,
+  "candidate_configs": [
+    {
+      "family": "aroon",
+      "id": "C01",
+      "period": 35,
+      "reward_ratio": 2,
+      "stop_atr": 1,
+      "threshold": 25,
+      "warmup_bars": 100
+    },
+    {
+      "family": "aroon",
+      "id": "C02",
+      "period": 35,
+      "reward_ratio": 2,
+      "stop_atr": 2,
+      "threshold": 25,
+      "warmup_bars": 100
+    },
+    {
+      "family": "aroon",
+      "id": "C03",
+      "period": 35,
+      "reward_ratio": 2,
+      "stop_atr": 1,
+      "threshold": 50,
+      "warmup_bars": 100
+    },
+    {
+      "family": "aroon",
+      "id": "C04",
+      "period": 35,
+      "reward_ratio": 2,
+      "stop_atr": 2,
+      "threshold": 50,
+      "warmup_bars": 100
+    },
+    {
+      "family": "aroon",
+      "id": "C05",
+      "period": 70,
+      "reward_ratio": 2,
+      "stop_atr": 1,
+      "threshold": 25,
+      "warmup_bars": 100
+    },
+    {
+      "family": "aroon",
+      "id": "C06",
+      "period": 70,
+      "reward_ratio": 2,
+      "stop_atr": 2,
+      "threshold": 25,
+      "warmup_bars": 100
+    },
+    {
+      "family": "aroon",
+      "id": "C07",
+      "period": 70,
+      "reward_ratio": 2,
+      "stop_atr": 1,
+      "threshold": 50,
+      "warmup_bars": 100
+    },
+    {
+      "family": "aroon",
+      "id": "C08",
+      "period": 70,
+      "reward_ratio": 2,
+      "stop_atr": 2,
+      "threshold": 50,
+      "warmup_bars": 100
+    },
+    {
+      "family": "pullback",
+      "id": "C09",
+      "reward_ratio": 2,
+      "rsi_cut": 10,
+      "slow_period": 100,
+      "stop_atr": 1,
+      "warmup_bars": 1000
+    },
+    {
+      "family": "pullback",
+      "id": "C10",
+      "reward_ratio": 2,
+      "rsi_cut": 10,
+      "slow_period": 100,
+      "stop_atr": 2,
+      "warmup_bars": 1000
+    },
+    {
+      "family": "pullback",
+      "id": "C11",
+      "reward_ratio": 2,
+      "rsi_cut": 20,
+      "slow_period": 100,
+      "stop_atr": 1,
+      "warmup_bars": 1000
+    },
+    {
+      "family": "pullback",
+      "id": "C12",
+      "reward_ratio": 2,
+      "rsi_cut": 20,
+      "slow_period": 100,
+      "stop_atr": 2,
+      "warmup_bars": 1000
+    },
+    {
+      "family": "pullback",
+      "id": "C13",
+      "reward_ratio": 2,
+      "rsi_cut": 10,
+      "slow_period": 200,
+      "stop_atr": 1,
+      "warmup_bars": 1000
+    },
+    {
+      "family": "pullback",
+      "id": "C14",
+      "reward_ratio": 2,
+      "rsi_cut": 10,
+      "slow_period": 200,
+      "stop_atr": 2,
+      "warmup_bars": 1000
+    },
+    {
+      "family": "pullback",
+      "id": "C15",
+      "reward_ratio": 2,
+      "rsi_cut": 20,
+      "slow_period": 200,
+      "stop_atr": 1,
+      "warmup_bars": 1000
+    },
+    {
+      "family": "pullback",
+      "id": "C16",
+      "reward_ratio": 2,
+      "rsi_cut": 20,
+      "slow_period": 200,
+      "stop_atr": 2,
+      "warmup_bars": 1000
+    },
+    {
+      "family": "channel",
+      "id": "C17",
+      "period": 20,
+      "reward_ratio": 2,
+      "stop_atr": 1,
+      "warmup_bars": 100
+    },
+    {
+      "family": "channel",
+      "id": "C18",
+      "period": 20,
+      "reward_ratio": 3,
+      "stop_atr": 1,
+      "warmup_bars": 100
+    },
+    {
+      "family": "channel",
+      "id": "C19",
+      "period": 20,
+      "reward_ratio": 2,
+      "stop_atr": 2,
+      "warmup_bars": 100
+    },
+    {
+      "family": "channel",
+      "id": "C20",
+      "period": 20,
+      "reward_ratio": 3,
+      "stop_atr": 2,
+      "warmup_bars": 100
+    },
+    {
+      "family": "channel",
+      "id": "C21",
+      "period": 55,
+      "reward_ratio": 2,
+      "stop_atr": 1,
+      "warmup_bars": 100
+    },
+    {
+      "family": "channel",
+      "id": "C22",
+      "period": 55,
+      "reward_ratio": 3,
+      "stop_atr": 1,
+      "warmup_bars": 100
+    },
+    {
+      "family": "channel",
+      "id": "C23",
+      "period": 55,
+      "reward_ratio": 2,
+      "stop_atr": 2,
+      "warmup_bars": 100
+    },
+    {
+      "family": "channel",
+      "id": "C24",
+      "period": 55,
+      "reward_ratio": 3,
+      "stop_atr": 2,
+      "warmup_bars": 100
+    }
+  ],
+  "data_path": "goldnix/data/clean/xauusd_h1_20030505_20251231_bid_ask.csv",
+  "data_sha256": "13190208b6acf53336f46d9e5280694659aa8545a49a9013613fc1abf0ce8c2d",
+  "documented_product_scenario_usd_per_price_unit": 0.01,
+  "holdout_access": false,
+  "monte_carlo_paths": 100000,
+  "monte_carlo_seed": 20261111,
+  "prior_trials": [
+    "V1",
+    "V2",
+    "earlier sensitivity variants (not included in the 24-trial correction)"
+  ],
+  "product_scenario_is_account_verified": false,
+  "registered_utc": "2026-11-12T02:55:54.999296+00:00",
+  "scenario_source": "https://www.hfm.com/int/en/trading-instruments/single-product?symbol=XAUUSD",
+  "selection": "Full baseline only for the candidate with greatest Bonferroni mean lower bound among those with raw G1 > 0, positive eras >= 3 and baskets >= 1000. If none qualifies, stop and report all candidates. G6/G8 computed before selection; a failure disqualifies selection. No widening the search after seeing results.",
+  "status": "EXPLORATORY_PREDECLARED_SEARCH",
+  "trial_count": 24,
+  "verified_usd_per_price_unit": 1.0
+}

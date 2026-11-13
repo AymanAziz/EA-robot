@@ -1,0 +1,254 @@
+{
+  "account_usd": 20.0,
+  "account_verified": false,
+  "baseline_draws": 200,
+  "baseline_seed": 20261110,
+  "baseline_sweeps": 20,
+  "bootstrap_resamples": 10000,
+  "bootstrap_seed": 20261110,
+  "candidate_configs": [
+    {
+      "exit_management": "break_even",
+      "family": "channel",
+      "id": "S01",
+      "period": 20,
+      "reward_ratio": 3,
+      "stop_atr": 1,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "trail",
+      "family": "channel",
+      "id": "S02",
+      "period": 20,
+      "reward_ratio": 3,
+      "stop_atr": 1,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "break_even",
+      "family": "channel",
+      "id": "S03",
+      "period": 20,
+      "reward_ratio": 3,
+      "stop_atr": 2,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "trail",
+      "family": "channel",
+      "id": "S04",
+      "period": 20,
+      "reward_ratio": 3,
+      "stop_atr": 2,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "break_even",
+      "family": "channel",
+      "id": "S05",
+      "period": 55,
+      "reward_ratio": 3,
+      "stop_atr": 1,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "trail",
+      "family": "channel",
+      "id": "S06",
+      "period": 55,
+      "reward_ratio": 3,
+      "stop_atr": 1,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "break_even",
+      "family": "channel",
+      "id": "S07",
+      "period": 55,
+      "reward_ratio": 3,
+      "stop_atr": 2,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "trail",
+      "family": "channel",
+      "id": "S08",
+      "period": 55,
+      "reward_ratio": 3,
+      "stop_atr": 2,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "fixed",
+      "family": "channel",
+      "id": "S09",
+      "period": 20,
+      "reward_ratio": 3,
+      "risk_share": 0.00125,
+      "stop_atr": 2,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "break_even",
+      "family": "channel",
+      "id": "S10",
+      "period": 20,
+      "reward_ratio": 3,
+      "risk_share": 0.00125,
+      "stop_atr": 2,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "fixed",
+      "family": "channel",
+      "id": "S11",
+      "period": 20,
+      "reward_ratio": 3,
+      "risk_share": 0.0025,
+      "stop_atr": 2,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "break_even",
+      "family": "channel",
+      "id": "S12",
+      "period": 20,
+      "reward_ratio": 3,
+      "risk_share": 0.0025,
+      "stop_atr": 2,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "fixed",
+      "family": "channel",
+      "id": "S13",
+      "period": 55,
+      "reward_ratio": 3,
+      "risk_share": 0.00125,
+      "stop_atr": 2,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "break_even",
+      "family": "channel",
+      "id": "S14",
+      "period": 55,
+      "reward_ratio": 3,
+      "risk_share": 0.00125,
+      "stop_atr": 2,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "fixed",
+      "family": "channel",
+      "id": "S15",
+      "period": 55,
+      "reward_ratio": 3,
+      "risk_share": 0.0025,
+      "stop_atr": 2,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "break_even",
+      "family": "channel",
+      "id": "S16",
+      "period": 55,
+      "reward_ratio": 3,
+      "risk_share": 0.0025,
+      "stop_atr": 2,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "fixed",
+      "family": "rejection",
+      "id": "S17",
+      "period": 20,
+      "reward_ratio": 1,
+      "stop_atr": 1,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "fixed",
+      "family": "rejection",
+      "id": "S18",
+      "period": 20,
+      "reward_ratio": 2,
+      "stop_atr": 1,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "fixed",
+      "family": "rejection",
+      "id": "S19",
+      "period": 20,
+      "reward_ratio": 1,
+      "stop_atr": 2,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "fixed",
+      "family": "rejection",
+      "id": "S20",
+      "period": 20,
+      "reward_ratio": 2,
+      "stop_atr": 2,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "fixed",
+      "family": "rejection",
+      "id": "S21",
+      "period": 55,
+      "reward_ratio": 1,
+      "stop_atr": 1,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "fixed",
+      "family": "rejection",
+      "id": "S22",
+      "period": 55,
+      "reward_ratio": 2,
+      "stop_atr": 1,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "fixed",
+      "family": "rejection",
+      "id": "S23",
+      "period": 55,
+      "reward_ratio": 1,
+      "stop_atr": 2,
+      "warmup_bars": 100
+    },
+    {
+      "exit_management": "fixed",
+      "family": "rejection",
+      "id": "S24",
+      "period": 55,
+      "reward_ratio": 2,
+      "stop_atr": 2,
+      "warmup_bars": 100
+    }
+  ],
+  "data_path": "goldnix/data/clean/xauusd_h1_20030505_20251231_bid_ask.csv",
+  "data_sha256": "13190208b6acf53336f46d9e5280694659aa8545a49a9013613fc1abf0ce8c2d",
+  "documented_product_scenario_usd_per_price_unit": 0.01,
+  "holdout_access": false,
+  "management_rule": "At the next bar only, after previous executable-side close is >=1 original R profitable: break_even moves stop to actual entry; trail moves stop to previous close minus/plus 1 original R. Never loosen stop; adverse gaps fill at actual open. No intrabar high/low activation.",
+  "monte_carlo_paths": 100000,
+  "monte_carlo_seed": 20261111,
+  "new_trials": 24,
+  "previous_recorded_trials": 28,
+  "prior_trials_note": "Also V1/V2 and earlier sensitivities, not included in this 52-trial adjustment. Same history has already influenced designs.",
+  "product_scenario_is_account_verified": false,
+  "registered_utc": "2026-11-12T03:35:18.189891+00:00",
+  "rejection_rule": "Closed-bar high exceeds prior N-bar high and closes inside => SELL; low breaches prior low and closes inside => BUY; both patterns in one bar => no signal.",
+  "risk_model": "Same frozen 100000 IID annual paths, observed trade rate and fixed seed. Stop management changes realized trade outcomes, not the gate or equity.",
+  "scenario_source": "https://www.hfm.com/int/en/trading-instruments/single-product?symbol=XAUUSD",
+  "selection": "Pick at most one candidate for complete G1-G9 diagnostic: it must pass G1/G4/G5/G6/G8 screens and conditional G7 at documented 0.01 oz; maximize cumulative-search mean lower bound. Evaluate actual 1 oz risk separately; scenario is not executable approval. If none qualifies, retain all failures and stop this round.",
+  "status": "SECOND_ADAPTIVE_EXPLORATORY_ROUND",
+  "trial_count": 52,
+  "verified_usd_per_price_unit": 1.0
+}

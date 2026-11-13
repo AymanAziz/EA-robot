@@ -1,0 +1,31 @@
+{
+  "candidate": "M1_PROFIT_PROTECTION_P01",
+  "scope": "Updated Step6 diagnostic and Step7 preflight; no strategy threshold change",
+  "engineering_runs": ["P01N_20261113T062543Z", "P01N_20261113T062008Z"],
+  "quote_model": "MT5 generated broker ticks, previously examined January/February2024",
+  "money_precision_usc": 0.01,
+  "target_gap_fill": "requested level, conservative historical decision default",
+  "bootstrap_months": ["2024-01", "2024-02"],
+  "bootstrap_resamples": 10000,
+  "bootstrap_seed": 20261113,
+  "monte_carlo_paths": 100000,
+  "monte_carlo_seed": 20261114,
+  "baseline_draws_per_era_required": 200,
+  "gates_path": "goldnix/gates/rules.yaml",
+  "account_usd": 20.0,
+  "candidate_parameters_changed": false,
+  "formal_freeze_allowed": false,
+  "holdout_payload_access_allowed": false,
+  "limits": [
+    "Two calendar blocks with a final two-hour coverage shortfall are not four qualified eras",
+    "Generated ticks and current broker metadata do not establish historical real execution",
+    "No matched P01 baseline has been certified; G2 and G3 remain unevaluated",
+    "Do not turn a diagnostic numerical threshold into a formal gate pass",
+    "No fresh holdout may be read or consumed before matching Step6 qualification"
+  ],
+  "verification_seams": {
+    "statistics": "Month-level resampling, inclusion of initial equity, identical seeded MC across memory chunks; does not establish representativeness",
+    "step6": "Source/data binding and explicit unavailable gates; cannot certify absent full-history inputs",
+    "step7": "Reject unqualified Step6, changed source, or consumed period without touching holdout prices"
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "registered_utc": "2026-11-12T04:21:08.099896+00:00",
+  "status": "THIRD_ADAPTIVE_EXPLORATORY_ROUND",
+  "previous_recorded_trials": 52,
+  "new_trials": 16,
+  "trial_count": 68,
+  "candidate_configs": [
+    {
+      "id": "T01",
+      "family": "channel",
+      "period": 20,
+      "stop_atr": 0.05,
+      "reward_ratio": 2,
+      "exit_management": "fixed",
+      "warmup_bars": 100
+    },
+    {
+      "id": "T02",
+      "family": "channel",
+      "period": 20,
+      "stop_atr": 0.05,
+      "reward_ratio": 3,
+      "exit_management": "fixed",
+      "warmup_bars": 100
+    },
+    {
+      "id": "T03",
+      "family": "channel",
+      "period": 20,
+      "stop_atr": 0.1,
+      "reward_ratio": 2,
+      "exit_management": "fixed",
+      "warmup_bars": 100
+    },
+    {
+      "id": "T04",
+      "family": "channel",
+      "period": 20,
+      "stop_atr": 0.1,
+      "reward_ratio": 3,
+      "exit_management": "fixed",
+      "warmup_bars": 100
+    },
+    {
+      "id": "T05",
+      "family": "channel",
+      "period": 20,
+      "stop_atr": 0.25,
+      "reward_ratio": 2,
+      "exit_management": "fixed",
+      "warmup_bars": 100
+    },
+    {
+      "id": "T06",
+      "family": "channel",
+      "period": 20,
+      "stop_atr": 0.25,
+      "reward_ratio": 3,
+      "exit_management": "fixed",
+      "warmup_bars": 100
+    },
+    {
+      "id": "T07",
+      "family": "channel",
+      "period": 20,
+      "stop_atr": 0.5,
+      "reward_ratio": 2,
+      "exit_management": "fixed",
+      "warmup_bars": 100
+    },
+    {
+      "id": "T08",
+      "family": "channel",
+      "period": 20,
+      "stop_atr": 0.5,
+      "reward_ratio": 3,
+      "exit_management": "fixed",
+      "warmup_bars": 100
+    },
+    {
+      "id": "T09",
+      "family": "channel",
+      "period": 55,
+      "stop_atr": 0.05,
+      "reward_ratio": 2,
+      "exit_management": "fixed",
+      "warmup_bars": 100
+    },
+    {
+      "id": "T10",
+      "family": "channel",
+      "period": 55,
+      "stop_atr": 0.05,
+      "reward_ratio": 3,
+      "exit_management": "fixed",
+      "warmup_bars": 100
+    },
+    {
+      "id": "T11",
+      "family": "channel",
+      "period": 55,
+      "stop_atr": 0.1,
+      "reward_ratio": 2,
+      "exit_management": "fixed",
+      "warmup_bars": 100
+    },
+    {
+      "id": "T12",
+      "family": "channel",
+      "period": 55,
+      "stop_atr": 0.1,
+      "reward_ratio": 3,
+      "exit_management": "fixed",
+      "warmup_bars": 100
+    },
+    {
+      "id": "T13",
+      "family": "channel",
+      "period": 55,
+      "stop_atr": 0.25,
+      "reward_ratio": 2,
+      "exit_management": "fixed",
+      "warmup_bars": 100
+    },
+    {
+      "id": "T14",
+      "family": "channel",
+      "period": 55,
+      "stop_atr": 0.25,
+      "reward_ratio": 3,
+      "exit_management": "fixed",
+      "warmup_bars": 100
+    },
+    {
+      "id": "T15",
+      "family": "channel",
+      "period": 55,
+      "stop_atr": 0.5,
+      "reward_ratio": 2,
+      "exit_management": "fixed",
+      "warmup_bars": 100
+    },
+    {
+      "id": "T16",
+      "family": "channel",
+      "period": 55,
+      "stop_atr": 0.5,
+      "reward_ratio": 3,
+      "exit_management": "fixed",
+      "warmup_bars": 100
+    }
+  ],
+  "account_usd": 20.0,
+  "verified_usd_per_price_unit": 1.0,
+  "holdout_access": false,
+  "data_path": "goldnix/data/clean/xauusd_h1_20030505_20251231_bid_ask.csv",
+  "data_sha256": "13190208b6acf53336f46d9e5280694659aa8545a49a9013613fc1abf0ce8c2d",
+  "bootstrap_resamples": 10000,
+  "bootstrap_seed": 20261110,
+  "monte_carlo_paths": 100000,
+  "monte_carlo_seed": 20261111,
+  "baseline_draws": 200,
+  "baseline_sweeps": 20,
+  "baseline_seed": 20261110,
+  "hypothesis": "Reduce initial stop distance to lower actual dollar losses at the verified 1 oz minimum. Preserve original 0.50 USD price-distance floor and original target-to-stop calculation. Retain bid/ask costs and compare fill policies.",
+  "selection": "A candidate must pass raw G1/G4/G5/G6/G7 at VERIFIED 1oz/G8/G9. Select at most one by cumulative adjusted lower bound for full matched-baseline evaluation. If none qualifies, retain failures and stop this round.",
+  "analytic_check": "Compute exact probability of runs of sufficiently large losses under the same empirical IID model. This is a lower bound on annual drawdown-breach probability, not a claim about all possible strategies.",
+  "approval": "No outcome is executable approval without actual account qualification and independent evidence.",
+  "prior_trials_note": "The 68-trial bound excludes earlier V1/V2 and sensitivities. It cannot fully account for adaptive research."
+}

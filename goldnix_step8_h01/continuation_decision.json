@@ -1,0 +1,49 @@
+{
+  "candidate_id": "H01_S11_M5_REPLAY",
+  "qualification": "STEP7_MISSING_FOR_H01",
+  "tester_only": true,
+  "inputs": {
+    "RiskLot": 0.01,
+    "ChannelPeriod": 20,
+    "ATRPeriod": 14,
+    "StopATR": 2.0,
+    "TargetR": 3.0,
+    "MinDistance": 0.5,
+    "ReferenceAccountUSD": 20.0,
+    "RiskShare": 0.0025,
+    "USDPerPriceUnit": 0.01,
+    "VolCeilingATR": 0.3,
+    "DailyHaltR": 2.0,
+    "DDHaltUSD": 0.0,
+    "FridayFlatUTC": 20,
+    "FridayNoEntryUTC": 19,
+    "WarmupBars": 100,
+    "Magic": 2026111208
+  },
+  "operational_inputs": {
+    "TradeFromUTC": "2024.02.01 00:00:00",
+    "WindowStartUTC": "2024.01.22 00:00:00",
+    "WindowEndUTC": "2024.02.29 22:00:00",
+    "ServerOffsetSeconds": 7200,
+    "RunId": "assigned uniquely by runner"
+  },
+  "window_choice": "February2024 is the latest calendar month with frozen H01 activity (5 trades, both directions); full available month tested with Jan22 warmup. Selected using entry counts only, not P&L, to exercise execution. Not out-of-sample performance evidence.",
+  "time_conversion": "Bounded +7200 seconds interval independently aligned to UTC quote history before any native performance run; pooled and each weekly return correlation pass registered thresholds.",
+  "signal": "H1 prior-20-bar channel on separately aggregated bid/ask OHLC midpoint; simple mean of 14 true ranges; completed bars only.",
+  "risk": "Original signal-close planned-risk filter remains USD0.05. DDHaltUSD=0 retains frozen H01; Step8 drawdown kill switch implemented but disabled, since enabling it changes the frozen schedule.",
+  "execution": "Native broker tester SL/TP on processed generated ticks versus unchanged frozen H01 M5 OHLC stop-first reference. All differences retained. No changed strategy/risk parameters.",
+  "parity_threshold": 0.95,
+  "minimum_trades": 1,
+  "empty_trade_lists": "INSUFFICIENT_DATA, never PASS",
+  "step7_passed": false,
+  "forward_approved": false,
+  "registered_utc": "2026-11-12T15:42:29.243421+00:00",
+  "tester": {
+    "model": 0,
+    "from_date": "2024.01.22",
+    "to_date": "2024.03.01"
+  },
+  "clock_evidence": "goldnix_step8_h01/out/S8P_20261112T153727Z/CLOCK_CHECK.json",
+  "clock_evidence_sha256": "255a8c6c770b6b24d2ff7fe0de3ada47cab1890a5f0f7d7131402b786e8e63d5",
+  "data_model": "MT5 Every tick generated from actual broker M1 bars; historical M1 spread creates Ask. NOT real historical ticks. Export each processed OnTick quote; replay identical stream in Python."
+}

@@ -1,0 +1,57 @@
+// Identical behavioral scenarios run as native MQL5 and against the shared header in C++.
+void RunProfitPolicyCases()
+{
+   double sl=0,peak=0;int action=0;
+   action=ProfitPlan(1,100,96,96,112,101.99,102.19,100,.01,.1,0,.2,sl,peak);
+   Check(action==PROFIT_HOLD && sl==96,"profit below activation keeps initial stop");
+   action=ProfitPlan(1,100,96,96,112,102,102.2,100,.01,.1,0,.2,sl,peak);
+   Check(action==PROFIT_MODIFY && MathAbs(sl-101)<1e-8 && peak==102,"BUY activates at half original risk and retains half profit");
+   action=ProfitPlan(-1,100,104,104,88,97.8,98,100,.01,.1,0,.2,sl,peak);
+   Check(action==PROFIT_MODIFY && MathAbs(sl-99)<1e-8 && peak==98,"SELL uses Ask and mirrors profit floor");
+   action=ProfitPlan(-1,100,104,104,88,98,98.3,100,.01,.1,0,.2,sl,peak);
+   Check(action==PROFIT_HOLD && sl==104,"SELL cannot arm from Bid-only apparent profit");
+   action=ProfitPlan(1,100,96,101,112,106,106.2,102,.01,.1,0,.2,sl,peak);
+   Check(action==PROFIT_MODIFY && MathAbs(sl-103)<1e-8 && peak==106,"new favorable peak raises profitable stop");
+   action=ProfitPlan(1,100,96,103,112,104.5,104.7,106,.01,.1,0,.2,sl,peak);
+   Check(action==PROFIT_HOLD && sl==103 && peak==106,"ordinary pullback keeps peak and accepted SL");
+   action=ProfitPlan(1,100,96,103,112,102.9,103.1,106,.01,.1,0,.2,sl,peak);
+   Check(action==PROFIT_EXIT,"reversal through retained profit floor requests exit");
+   action=ProfitPlan(-1,100,104,97,88,97,97.2,94,.01,.1,0,.2,sl,peak);
+   Check(action==PROFIT_EXIT,"SELL spread widening can breach executable profit floor");
+   action=ProfitPlan(1,100,96,103,112,95,95.2,106,.01,.1,0,.2,sl,peak);
+   Check(action==PROFIT_EXIT,"gap through stop requests current-price exit without promising the floor fill");
+   action=ProfitPlan(1,100,96,96,112,102,102.2,100,.01,2,0,.2,sl,peak);
+   Check(action==PROFIT_BLOCKED && peak==102,"broker minimum distance blocks placement but retains observed peak");
+   action=ProfitPlan(1,100,96,96,102.2,102,102.2,100,.01,.1,.3,.2,sl,peak);
+   Check(action==PROFIT_BLOCKED,"TP inside freeze zone prevents modification");
+   action=ProfitPlan(1,100,96,101,112,102.1,102.3,102,.01,.1,0,.2,sl,peak);
+   Check(action==PROFIT_HOLD && sl==101,"small improvement does not spam stop requests");
+   action=ProfitPlan(1,100,96,96,112,104,104.2,100,.01,.1,0,2,sl,peak);
+   Check(action==PROFIT_HOLD,"large cost reserve delays activation");
+   action=ProfitPlan(1,100,96,96,112,102.1,102.3,100,.25,.1,0,.2,sl,peak);
+   Check(action==PROFIT_MODIFY && MathAbs(sl-101.25)<1e-8,"BUY rounds protective floor onto tick grid");
+   action=ProfitPlan(-1,100,104,104,88,97.7,97.9,100,.25,.1,0,.2,sl,peak);
+   Check(action==PROFIT_MODIFY && MathAbs(sl-98.75)<1e-8,"SELL rounds protective floor onto tick grid");
+   action=ProfitPlan(1,100,96,103.5,112,104,104.2,106,.01,.1,0,.2,sl,peak);
+   Check(action==PROFIT_HOLD && sl==103.5,"manually tighter accepted stop is never loosened");
+   action=ProfitPlan(1,100,96,96,112,101,100.5,100,.01,.1,0,.2,sl,peak);
+   Check(action==PROFIT_INVALID,"crossed quote rejected");
+   action=ProfitPlan(0,100,96,96,112,102,102.2,100,.01,.1,0,.2,sl,peak);
+   Check(action==PROFIT_INVALID,"undefined side rejected");
+   action=ProfitPlan(1,100,100,100,112,102,102.2,100,.01,.1,0,.2,sl,peak);
+   Check(action==PROFIT_INVALID,"original risk cannot be reconstructed from break-even stop");
+   action=ProfitPlan(1,100,96,95,112,102,102.2,100,.01,.1,0,.2,sl,peak);
+   Check(action==PROFIT_INVALID,"stop below original protection rejected");
+   action=ProfitPlan(1,100,96,96,112,102,102.2,99,.01,.1,0,.2,sl,peak);
+   Check(action==PROFIT_INVALID,"invalid historical peak rejected");
+   action=ProfitPlan(1,100,96,96,112,102,102.2,100,0,.1,0,.2,sl,peak);
+   Check(action==PROFIT_INVALID,"zero tick size rejected");
+   Check(ProfitStopAccepted(1,96,96,100,112,112,.01),"price break-even stop is valid ongoing protection");
+   Check(ProfitStopAccepted(1,96,101,102,112,112,.01),"profitable BUY stop passes reconciliation");
+   Check(ProfitStopAccepted(-1,104,99,98,88,88,.01),"profitable SELL stop passes reconciliation");
+   Check(!ProfitStopAccepted(1,96,101,100,112,112,.01),"confirmed BUY stop cannot be weakened");
+   Check(!ProfitStopAccepted(-1,104,99,100,88,88,.01),"confirmed SELL stop cannot be weakened");
+   Check(!ProfitStopAccepted(1,96,101,102,112,113,.01),"original TP must survive modification");
+   Check(!ProfitStopAccepted(1,96,101,0,112,112,.01),"removed SL is rejected");
+   Check(!ProfitStopAccepted(1,96,101,114,112,112,.01),"stop beyond frozen TP is rejected");
+}

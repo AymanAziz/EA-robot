@@ -1,0 +1,61 @@
+{
+  "additional_trials": 4,
+  "candidate_configs": [
+    {
+      "account_usd": 20.0,
+      "family": "channel",
+      "id": "R01",
+      "parent": "C20",
+      "period": 20,
+      "reward_ratio": 3,
+      "risk_share": 0.005,
+      "stop_atr": 2,
+      "usd_per_price_unit": 0.01,
+      "warmup_bars": 100
+    },
+    {
+      "account_usd": 20.0,
+      "family": "channel",
+      "id": "R02",
+      "parent": "C20",
+      "period": 20,
+      "reward_ratio": 3,
+      "risk_share": 0.01,
+      "stop_atr": 2,
+      "usd_per_price_unit": 0.01,
+      "warmup_bars": 100
+    },
+    {
+      "account_usd": 20.0,
+      "family": "channel",
+      "id": "R03",
+      "parent": "C24",
+      "period": 55,
+      "reward_ratio": 3,
+      "risk_share": 0.005,
+      "stop_atr": 2,
+      "usd_per_price_unit": 0.01,
+      "warmup_bars": 100
+    },
+    {
+      "account_usd": 20.0,
+      "family": "channel",
+      "id": "R04",
+      "parent": "C24",
+      "period": 55,
+      "reward_ratio": 3,
+      "risk_share": 0.01,
+      "stop_atr": 2,
+      "usd_per_price_unit": 0.01,
+      "warmup_bars": 100
+    }
+  ],
+  "cumulative_trial_count": 28,
+  "limitations": "Chosen after viewing 24 candidates, on reused history; not independent approval. 0.01 oz is documented product exposure only, not account-qualified. Risk estimate uses signal-close spread; actual fills/gaps can exceed it.",
+  "prior_phase_result": "24 finished, none qualified, no full baseline selected",
+  "prior_phase_widened": false,
+  "reason": "C20/C24 improve density and all-era means but fail confidence; original-risk diagnostics also exceed the budget at 0.01 oz. Test a causal nominal-risk eligibility filter, without reducing recorded spread.",
+  "registered_utc": "2026-11-12T03:06:41.221033+00:00",
+  "selection": "Full evaluation only if G1/G4/G5/G6/G8 screen clears; rank by cumulative-search lower bound. No further risk thresholds will be searched in this experiment.",
+  "status": "POST_SCREEN_EXPLORATORY_FOLLOWUP"
+}

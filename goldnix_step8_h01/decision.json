@@ -1,0 +1,40 @@
+{
+  "candidate_id": "H01_S11_M5_REPLAY",
+  "qualification": "STEP7_MISSING_FOR_H01",
+  "tester_only": true,
+  "inputs": {
+    "RiskLot": 0.01,
+    "ChannelPeriod": 20,
+    "ATRPeriod": 14,
+    "StopATR": 2.0,
+    "TargetR": 3.0,
+    "MinDistance": 0.5,
+    "ReferenceAccountUSD": 20.0,
+    "RiskShare": 0.0025,
+    "USDPerPriceUnit": 0.01,
+    "VolCeilingATR": 0.3,
+    "DailyHaltR": 2.0,
+    "DDHaltUSD": 0.0,
+    "FridayFlatUTC": 20,
+    "FridayNoEntryUTC": 19,
+    "WarmupBars": 100,
+    "Magic": 2026111208
+  },
+  "operational_inputs": {
+    "TradeFromUTC": "2026.11.09 00:00:00",
+    "WindowStartUTC": "2026.11.02 00:00:00",
+    "WindowEndUTC": "2026.11.11 22:00:00",
+    "ServerOffsetSeconds": 7200,
+    "RunId": "assigned uniquely by runner"
+  },
+  "window_choice": "Most recent completed broker days after the November DST change. November 2-8 is warmup; trade window November 9 through November 11 22:00 UTC, exclusive. Tester ToDate is November 12 00:00 SERVER time. The initial attempt declared a UTC end two hours later; this corrected declaration matches the same actual data window and changes no trading parameter. This is engineering data, not an untouched holdout.",
+  "time_conversion": "Explicit one-interval UTC-offset table; reject every tick outside the registered interval. No TimeGMT inference in tester. Broader dates need separately verified intervals.",
+  "signal": "H1 prior-20-bar channel on separately aggregated bid/ask OHLC midpoint; simple mean of 14 true ranges; completed bars only.",
+  "risk": "Original signal-close planned-risk filter remains USD0.05. DDHaltUSD=0 retains frozen H01; Step8 drawdown kill switch implemented but disabled, since enabling it changes the frozen schedule.",
+  "execution": "Native tester broker stop/target orders, evaluated on real ticks, versus unchanged frozen H01 M5 OHLC reference. Tick-versus-OHLC differences are mismatches, never retuned away.",
+  "parity_threshold": 0.95,
+  "minimum_trades": 1,
+  "empty_trade_lists": "INSUFFICIENT_DATA, never PASS",
+  "step7_passed": false,
+  "forward_approved": false
+}

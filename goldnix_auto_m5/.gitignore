@@ -1,0 +1,5 @@
+__pycache__/
+records
+deployment/private*
+deployment/*.log
+deployment/**/terminal_process.log

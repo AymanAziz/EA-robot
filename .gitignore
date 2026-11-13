@@ -17,3 +17,21 @@ build/
 dist/
 .DS_Store
 **/.streamlit/secrets.toml
+
+# Local MT5 executables, quote archives and generated run evidence.
+*.ex5
+*.bin
+*.bi5
+**/terminal_process.log
+/goldnix_*/out/
+/goldnix_*/deployment/
+/goldnix_*/qualification/
+/goldnix_*/analysis/
+/goldnix_p01/step67/out/
+/goldnix_p01/ACTIVE_DEMO.json
+/goldnix_p01/RESULT*.json
+/goldnix_p01/LATEST.json
+/goldnix_p01/step67/LATEST.json
+/.vscode/
+/settings.dat
+/msedgewebview2.dxvk-cache
