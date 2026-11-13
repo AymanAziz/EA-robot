@@ -1,0 +1,13 @@
+{
+  "reason": "Initial exploratory screen warmed higher-timeframe indicators from each month start. Step6 requires preceding untraded warmup history, so the first screen is retained as a cold-start diagnostic and all candidates are re-evaluated with preceding context.",
+  "initial_result": "out/S6_FILTERS_20261113T071242Z/RESULT.json",
+  "candidate_definitions_changed": false,
+  "improvement_criteria_changed": false,
+  "evaluation_windows_changed": false,
+  "additional_data": "Generated broker quotes2023-12-01 through2024-01-01 exclusive, used only for indicator warmup; never traded in this revision",
+  "context": "January uses December context; February uses December+January; March uses December+January+February. Only strictly earlier observed completed M1 bars may be passed as context. Duplicate, overlapping or future context is rejected.",
+  "comparators": "Same P01 original and COMMON_P01 baseline plus all four previously registered filters; all account/protection parameters unchanged",
+  "step7_user_approval_required": true,
+  "step7_access": false,
+  "no_promotion": "A better engineering screen is not a full four-era Step6 pass or permission to deploy"
+}
