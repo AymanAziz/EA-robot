@@ -25,9 +25,12 @@ and a certified matched random baseline are missing. See the complete
 [Step 6 comparison](../goldnix_p02/README.md), including all failed candidates,
 the preceding-history correction and simulated drawdown limits.
 
-The user has explicitly required **approval after Step6 before running Step7**.
-No subsequent Step7 price access, holdout consumption or evaluation may proceed
-without that approval. Previously used2026 history remains consumed.
+The user explicitly authorized Step 7 on November 13, 2026. The subsequent
+P01 preflight is blocked by missing qualification, freeze and untouched data;
+approval is no longer the missing prerequisite. Previously used 2026 history
+remains consumed. The old H01 numerical Step 6 PASS and V1/V2 Step 7 passes
+belong to different candidates. See the verified
+[qualification history and protection control](GOLDNIX_PASS_LINEAGE_20261113.md).
 
 Run the research tests from the repository root with the project's Python
 environment and `PYTHONPATH=goldnix:.`. For the current candidate:
