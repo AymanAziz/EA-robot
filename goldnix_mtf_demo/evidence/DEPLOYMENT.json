@@ -1,0 +1,98 @@
+{
+  "verified_utc_epoch": 1794561065,
+  "status": {
+    "captured_utc": "1794561064",
+    "program": "GoldnixMTFDemo",
+    "version": "2.00",
+    "timeframe": "M1",
+    "signal_timeframe": "H1",
+    "context_timeframes": "H4 > H1 > M15 > M5",
+    "candle_clock": "broker_server",
+    "qualification": "NOT_QUALIFIED",
+    "step6": "FAIL_INCOMPLETE",
+    "step7": "NO_UNTOUCHED_HOLDOUT",
+    "identity_matches": "true",
+    "connected": "true",
+    "data_ready": "true",
+    "trade_permission": "true",
+    "daily_attempts": "3",
+    "daily_r": "-2.009649023114",
+    "daily_loss_halt": "false",
+    "audit_halt": "false",
+    "state_broken": "false",
+    "balance_usc": "1973.05",
+    "positions": "0",
+    "orders": "0",
+    "pending_magic": "0",
+    "last_decision": "daily_r_limit",
+    "exclusive_lock_verified": "true",
+    "warmup_m5_bars": "7200",
+    "h4_complete_bars": "128",
+    "h4_ready": "true",
+    "h4_direction": "-1"
+  },
+  "normal_application_reopen": true,
+  "saved_m1_chart_verified": true,
+  "risk_state_preserved": true,
+  "balance_preserved": true,
+  "new_orders_in_activation_run": 0,
+  "native_policy": {
+    "passed": "4822",
+    "failed": "0"
+  },
+  "native_reference": {
+    "rows": 8500,
+    "passed": true,
+    "maximum_errors": {
+      "decision_server": 0.0,
+      "h4_count": 0.0,
+      "h4_available_server": 0.0,
+      "ema50": 0.0,
+      "h4_ready": 0.0,
+      "h4_direction": 0.0,
+      "h1_open_server": 0.0,
+      "h1_ready": 0.0,
+      "direction": 0.0,
+      "atr": 4.505285033928885e-13,
+      "level": 5.684341886080802e-14,
+      "buffer": 5.46229728115577e-14
+    }
+  },
+  "broker_reference": {
+    "rows": 7201,
+    "passed": true,
+    "maximum_errors": {
+      "decision_server": 0.0,
+      "h4_count": 0.0,
+      "h4_available_server": 0.0,
+      "ema50": 1.3642420526593924e-12,
+      "h4_ready": 0.0,
+      "h4_direction": 0.0,
+      "h1_open_server": 0.0,
+      "h1_ready": 0.0,
+      "direction": 0.0,
+      "atr": 4.991562718714704e-13,
+      "level": 9.094947017729282e-13,
+      "buffer": 4.476419235288631e-13
+    }
+  },
+  "source_sha256": {
+    "MtfRuntime.mqh": "3ef6c7cabf6fa202754c9e48ba06a099786d61dcf4bb46586a1eab16efcfc858",
+    "AutoM1Policy.mqh": "f75c6498d49fdd5828f93cc35de3d691d4671577c716acdfe6a01aea426c4550",
+    "GoldnixMTFDemo.mq5": "db630dbcc062da64e89f857443775e15c503ab085546fcfc1b478ca031040769",
+    "ProfitJournal.mqh": "34211b57318a17992995021b6f7c64f8cbad8c01645b0badb1166228e73d5871",
+    "MtfCases.mqh": "476cea82d9deb903722c8eb55789faca71bbc4fcfc2b56faab80f088a548a25c",
+    "ProfitPolicy.mqh": "0f6b1463cd9810c09b36541c1f71dcad415569bf5cd3ea444f4406483ff9b5b8",
+    "ProfitManager.mqh": "f889a3662cd954316da5a32817b0822e468d3c7e397e802519c689b6511d135d",
+    "MtfJournal.mqh": "1d50021fe6f04f07e3a65e5ca7b87df3940b043c659c3145e9bd08252cd755c0",
+    "MtfPolicy.mqh": "a482cc281898a495dc751ba70a5f77f06a6cb0ba8fe0235bd91cc49b8e620ff0"
+  },
+  "ex5_sha256": "fbfef476333400480132b402fa5ece260a92663f463dbaade9de5603a3222a11",
+  "step6": "D01 NOT QUALIFIED; H03 parent failed G1 and G5",
+  "step7": "NOT RUN: no untouched frozen holdout",
+  "limitations": [
+    "Broker clock and P01 profit protection differ from H03 research",
+    "Native checks verify policy and integration data, not full trade-path profitability",
+    "No forced demo order; current daily risk limit is retained"
+  ]
+}

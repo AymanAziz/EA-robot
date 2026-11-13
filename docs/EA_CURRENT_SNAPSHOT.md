@@ -1,6 +1,15 @@
 # Current EA source snapshot
 
-The active demo implementation is `goldnix_auto_m1/GoldnixAutoM1.mq5` version1.20:
+The user has now explicitly authorized the experimental
+[D01 MTF demo](../goldnix_mtf_demo/README.md). The active EA is
+`goldnix_mtf_demo/GoldnixMTFDemo.mq5` v2.00 on the saved **M1 chart**, with
+**H4 trend, H1 entry, M15 warning and M5 confirmation**. Broker candle boundaries
+and retained P01 profit protection make it a distinct unqualified variant.
+Step 6 and Step 7 have **not passed**. See the
+[deployment verification](../goldnix_mtf_demo/evidence/DEPLOYMENT.json).
+The existing daily risk checkpoint is preserved, including its −2R halt.
+
+The preserved predecessor is `goldnix_auto_m1/GoldnixAutoM1.mq5` version1.20:
 closed M1 channel20 BUY/SELL entries, one0.01lot position, a5USC planned-risk cap,
 and persistent profit protection. Profit protection arms after the declared
 threshold, tightens SL toward half the observed executable profit peak, and
@@ -35,11 +44,12 @@ belong to different candidates. See the verified
 The subsequent [H4/H1/M15/M5 fakeout experiment](../goldnix_h02/README.md)
 reproduces H01 on all four original eras and tests two separately registered
 variants. The H4 filter fails the 1,000-trade gate; the added M15/M5 early-exit
-rule also fails the return lower-bound gate. These research rules are not
-installed on the active demo EA.
+rule also fails the return lower-bound gate. Subsequent explicit user
+authorization permits D01 experimental demo use, and does not change those
+failed research results or grant production qualification.
 
 Run the research tests from the repository root with the project's Python
-environment and `PYTHONPATH=goldnix:.`. For the current candidate:
+environment and `PYTHONPATH=goldnix:.`. For the preserved research candidates:
 
 ```sh
 PYTHONPATH=goldnix:. .venv/bin/pytest -q goldnix_p02/tests goldnix_p01/tests goldnix_step6/tests goldnix_step7/tests

@@ -1,5 +1,11 @@
 # H4 → H1 → M15 → M5 context and fakeout evaluation
 
+Subsequent deployment update: after reading these failures, the user explicitly
+requested an experimental demo. [D01](../goldnix_mtf_demo/README.md) implements
+the MTF sequence with broker candle boundaries and retained P01 profit
+protection. It is a distinct unqualified variant; the research results below
+and frozen protocol remain unchanged.
+
 **Implemented and tested on all four 2005–2025 eras. Neither new candidate
 qualifies for deployment or Step 7.** H4 context slightly improves average R
 and lowers simulated annual drawdown, but leaves fewer than the required

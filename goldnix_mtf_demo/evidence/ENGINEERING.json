@@ -1,0 +1,87 @@
+{
+  "fixtures": 4,
+  "total_rows": 33994,
+  "all_passed": true,
+  "per_fixture": [
+    {
+      "rows": 8500,
+      "passed": true,
+      "maximum_errors": {
+        "decision_server": 0.0,
+        "h4_count": 0.0,
+        "h4_available_server": 0.0,
+        "ema50": 0.0,
+        "h4_ready": 0.0,
+        "h4_direction": 0.0,
+        "h1_open_server": 0.0,
+        "h1_ready": 0.0,
+        "direction": 0.0,
+        "atr": 4.505285033928885e-13,
+        "level": 5.684341886080802e-14,
+        "buffer": 5.46229728115577e-14
+      }
+    },
+    {
+      "rows": 8497,
+      "passed": true,
+      "maximum_errors": {
+        "decision_server": 0.0,
+        "h4_count": 0.0,
+        "h4_available_server": 0.0,
+        "ema50": 0.0,
+        "h4_ready": 0.0,
+        "h4_direction": 0.0,
+        "h1_open_server": 0.0,
+        "h1_ready": 0.0,
+        "direction": 0.0,
+        "atr": 4.505285033928885e-13,
+        "level": 5.684341886080802e-14,
+        "buffer": 5.46229728115577e-14
+      }
+    },
+    {
+      "rows": 8500,
+      "passed": true,
+      "maximum_errors": {
+        "decision_server": 0.0,
+        "h4_count": 0.0,
+        "h4_available_server": 0.0,
+        "ema50": 9.094947017729282e-13,
+        "h4_ready": 0.0,
+        "h4_direction": 0.0,
+        "h1_open_server": 0.0,
+        "h1_ready": 0.0,
+        "direction": 0.0,
+        "atr": 4.956035581926699e-13,
+        "level": 2.2737367544323206e-13,
+        "buffer": 4.3720582709738665e-13
+      }
+    },
+    {
+      "rows": 8497,
+      "passed": true,
+      "maximum_errors": {
+        "decision_server": 0.0,
+        "h4_count": 0.0,
+        "h4_available_server": 0.0,
+        "ema50": 9.094947017729282e-13,
+        "h4_ready": 0.0,
+        "h4_direction": 0.0,
+        "h1_open_server": 0.0,
+        "h1_ready": 0.0,
+        "direction": 0.0,
+        "atr": 4.956035581926699e-13,
+        "level": 2.2737367544323206e-13,
+        "buffer": 4.3720582709738665e-13
+      }
+    }
+  ],
+  "regression_pytest": "39 passed; 15 existing NumPy deprecation warnings",
+  "native_compile": "0 errors, 0 warnings",
+  "risk_and_profit_headers_unchanged": {
+    "AutoM1Policy.mqh": "f75c6498d49fdd5828f93cc35de3d691d4671577c716acdfe6a01aea426c4550",
+    "ProfitPolicy.mqh": "0f6b1463cd9810c09b36541c1f71dcad415569bf5cd3ea444f4406483ff9b5b8",
+    "ProfitJournal.mqh": "34211b57318a17992995021b6f7c64f8cbad8c01645b0badb1166228e73d5871",
+    "ProfitManager.mqh": "f889a3662cd954316da5a32817b0822e468d3c7e397e802519c689b6511d135d"
+  }
+}
