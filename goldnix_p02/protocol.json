@@ -1,5 +1,5 @@
 {
-  "registered_utc": "2026-11-13T07:08:00Z",
+  "registered_utc": "2026-11-13T07:08:57.184465+00:00",
   "authorization": "User requested pushing current code, improving and completing Step6; Step7 only after later approval",
   "status": "FINITE_EXPLORATORY_STEP6_BATCH",
   "preserved_baseline_commit": "6e12f24",
@@ -35,8 +35,22 @@
     "selection": "At most one candidate passing all screen conditions, ranked by pooled meanR; no automatic parameter search or extension of batch",
     "deployment": "No candidate replaces the active demo EA during this research"
   },
-  "statistics": {"bootstrap_resamples": 10000, "monte_carlo_paths": 100000, "bootstrap_seed": 20261115, "monte_carlo_seed": 20261116},
-  "gates": "Original G1–G9 unchanged, including1000 trades and200 matched random schedules per era. Full four-era data and baseline remain prerequisites.",
-  "step7": {"user_approval_required": true, "user_approval_received": false, "read_prices": false, "run_preflight_or_evaluation": false},
-  "test_seams": {"features": "Closed higher-timeframe availability, strict missing-minute rejection, future-prefix invariance and mirrored direction", "replay": "Unfiltered fork must reproduce P01; candidate filters may only suppress entries, never enlarge risk or alter protective exit rules"}
+  "statistics": {
+    "bootstrap_resamples": 10000,
+    "monte_carlo_paths": 100000,
+    "bootstrap_seed": 20261115,
+    "monte_carlo_seed": 20261116
+  },
+  "gates": "Original G1\u2013G9 unchanged, including1000 trades and200 matched random schedules per era. Full four-era data and baseline remain prerequisites.",
+  "step7": {
+    "user_approval_required": true,
+    "user_approval_received": false,
+    "read_prices": false,
+    "run_preflight_or_evaluation": false
+  },
+  "test_seams": {
+    "features": "Closed higher-timeframe availability, strict missing-minute rejection, future-prefix invariance and mirrored direction",
+    "replay": "Unfiltered fork must reproduce P01; candidate filters may only suppress entries, never enlarge risk or alter protective exit rules"
+  },
+  "registration_timestamp_note": "System UTC recorded before any candidate-performance evaluation; initial manual timestamp corrected, candidate settings unchanged."
 }
