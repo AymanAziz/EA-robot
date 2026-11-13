@@ -32,6 +32,12 @@ remains consumed. The old H01 numerical Step 6 PASS and V1/V2 Step 7 passes
 belong to different candidates. See the verified
 [qualification history and protection control](GOLDNIX_PASS_LINEAGE_20261113.md).
 
+The subsequent [H4/H1/M15/M5 fakeout experiment](../goldnix_h02/README.md)
+reproduces H01 on all four original eras and tests two separately registered
+variants. The H4 filter fails the 1,000-trade gate; the added M15/M5 early-exit
+rule also fails the return lower-bound gate. These research rules are not
+installed on the active demo EA.
+
 Run the research tests from the repository root with the project's Python
 environment and `PYTHONPATH=goldnix:.`. For the current candidate:
 

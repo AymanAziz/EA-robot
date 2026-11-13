@@ -33,6 +33,7 @@ dist/
 /goldnix_p01/LATEST.json
 /goldnix_p01/step67/LATEST.json
 /goldnix_p02/LATEST.json
+/goldnix_h02/diagnostics/
 /.vscode/
 /settings.dat
 /msedgewebview2.dxvk-cache

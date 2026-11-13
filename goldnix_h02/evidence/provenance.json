@@ -1,0 +1,11 @@
+{
+  "RESULT.json": {
+    "sha256": "ce158542c64ab73c4dc35af2759224388e3c170cf6839000f6d73cfc4d4d488d",
+    "source": "goldnix_h02/out/H02_20261113T082531Z/RESULT.json"
+  },
+  "FAKEOUT_DIAGNOSTIC.json": {
+    "sha256": "c57f8b9d4cb7ca33c6f43ff86255cb9750cca407991d69181a9ba4e5ac19686b",
+    "source": "goldnix_h02/diagnostics/fakeout_same_entry.json"
+  },
+  "run_manifest_sha256": "755eb157bcc5d7c546945e364d8bc9d88215619c9d2801e774b3fd1a0c2d7110"
+}

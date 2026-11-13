@@ -1,0 +1,18 @@
+{
+  "interpretation": "Posthoc isolated same-entry counterfactual, not an alternative valid account schedule or new trading rule",
+  "early_exits": 400,
+  "improved_same_entry_pnl": 314,
+  "worsened_same_entry_pnl": 85,
+  "unchanged": 1,
+  "fixed_later_exit_reasons": {
+    "stop": 306,
+    "target": 56,
+    "friday_flat": 37,
+    "gap_stop": 1
+  },
+  "hypothetical_sum_pnl_change_usd": -1.4496000000000329,
+  "mean_r_change_same_entries": -0.10090214801404777,
+  "new_parameters_selected": false,
+  "improvements_sum_usd": 6.761199999999947,
+  "deteriorations_sum_usd": -8.210799999999992
+}
